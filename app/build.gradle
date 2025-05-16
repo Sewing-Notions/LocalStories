@@ -16,6 +16,10 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file("local.properties").newDataInputStream())
+        manifestPlaceholders["MAPS_KEY"] = properties.getProperty("MAPS_KEY")
     }
 
     buildTypes {
@@ -46,6 +50,14 @@ dependencies {
     implementation libs.androidx.ui.graphics
     implementation libs.androidx.ui.tooling.preview
     implementation libs.androidx.material3
+
+    implementation(libs.places)
+    implementation(libs.play.services.maps)
+    implementation(libs.maps.compose)
+    implementation libs.androidx.drawerlayout
+    implementation libs.androidx.coordinatorlayout
+    implementation libs.material
+
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
