@@ -16,6 +16,12 @@
         android:background="#212B2D30"
         android:backgroundTint="#050505">
 
+        <!-- google maps -->
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/mapLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        
         <!-- Top Bar -->
         <LinearLayout
             android:id="@+id/topBar"

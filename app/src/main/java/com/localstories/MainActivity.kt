@@ -7,7 +7,10 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,6 +20,13 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.localstories.databinding.ActivityMainBinding
 
+// for google maps functionality
+import com.localstories.ui.theme.LocalStoriesTheme
+import com.google.android.libraries.places.api.Places
+import com.localstories.screens.MapScreen
+import com.localstories.utils.ManifestUtils
+import com.localstories.viewmodel.MapViewModel
+
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
@@ -24,8 +34,22 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val apiKey = ManifestUtils.getApiKeyFromManifest(this)
+
+        if (!Places.isInitialized() && apiKey != null) {
+            Places.initialize(applicationContext, apiKey)
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val mapLayout = findViewById<ComposeView>(R.id.mapLayout)
+        mapLayout.setContent {
+            LocalStoriesTheme {
+                val mapViewModel = MapViewModel()
+                MapScreen(mapViewModel)
+            }
+        }
 
         drawerLayout = findViewById(R.id.drawerLayout)
 
