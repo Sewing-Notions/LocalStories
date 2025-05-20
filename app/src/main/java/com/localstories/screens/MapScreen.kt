@@ -13,7 +13,9 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
+import com.google.android.gms.maps.UiSettings
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -49,7 +51,13 @@ fun MapScreen(mapViewModel: MapViewModel) {
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState
+        cameraPositionState = cameraPositionState,
+        uiSettings = MapUiSettings(
+            compassEnabled = false,
+            mapToolbarEnabled = false,
+            myLocationButtonEnabled = false,
+            scrollGesturesEnabled = true
+        )
     ) {
         userLocation?.let {
             Marker(

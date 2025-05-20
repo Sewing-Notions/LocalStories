@@ -16,6 +16,12 @@
         android:background="#212B2D30"
         android:backgroundTint="#050505">
 
+        <!-- google maps -->
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/mapLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        
         <!-- Top Bar -->
         <LinearLayout
             android:id="@+id/topBar"
@@ -27,6 +33,40 @@
             android:paddingEnd="16dp"
             android:gravity="center_vertical">
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/menuButton"
+                android:layout_width="35dp"
+                android:layout_height="48dp"
+                android:contentDescription="Menu"
+                android:padding="8.5dp"
+                app:backgroundTint="@android:color/white"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_menu"
+                app:iconPadding="0dp"
+                app:iconTint="@android:color/black" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/searchBar"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                app:boxBackgroundColor="@android:color/white"
+                app:boxBackgroundMode="filled"
+                app:boxCornerRadiusBottomEnd="50dp"
+                app:boxCornerRadiusBottomStart="50dp"
+                app:boxCornerRadiusTopEnd="50dp"
+                app:boxCornerRadiusTopStart="50dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/searchEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:hint="Search places..."
+                    android:textColor="@android:color/black" />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
         <!-- Floating Action Buttons -->
@@ -55,6 +95,13 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <View
+                        android:layout_width="40dp"
+                        android:layout_height="4dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/rounded_drag_handle" />
+
                     <TextView
                         android:id="@+id/titleNearby"
                         android:layout_width="wrap_content"
@@ -63,11 +110,25 @@
                         android:textStyle="bold"
                         android:textSize="16sp"
                         android:layout_marginBottom="8dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/nearbyList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="100dp"
+                        android:nestedScrollingEnabled="false"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </FrameLayout>
 
         <!-- Bottom Navigation -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:backgroundTint="#383636"
+            app:menu="@menu/bottom_nav_menu" />
 
         <!-- Location FAB -->
         <LinearLayout
@@ -80,6 +141,24 @@
             android:layout_marginBottom="280dp"
             android:translationZ="1dp">
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/locationBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="Location"
+                android:src="@drawable/pin"
+                app:backgroundTint="@android:color/white"
+                app:tint="@android:color/black" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/layersBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Layers"
+                android:src="@drawable/layer"
+                app:backgroundTint="@android:color/white"
+                app:tint="@android:color/black" />
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
