@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="16dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Image placeholder -->
+        <ImageView
+            android:id="@+id/storyImage"
+            android:layout_width="92dp"
+            android:layout_height="92dp"
+            android:layout_alignParentStart="true"
+            android:scaleType="centerCrop"
+            android:background="@drawable/image_rounded_bg"
+            android:contentDescription="Story image" />
+
+        <!-- Delete button, initially hidden -->
+        <ImageButton
+            android:id="@+id/deleteButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="Delete story"
+            android:visibility="gone" />
+
+        <!-- Text section -->
+        <LinearLayout
+            android:id="@+id/textSection"
+            android:layout_width="match_parent"
+            android:layout_height="92dp"
+            android:layout_marginStart="16dp"
+            android:layout_toStartOf="@id/deleteButton"
+            android:layout_toEndOf="@id/storyImage"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/storyTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Story Title"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/storyDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Short description of the story..."
+                android:textColor="#444444"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/storyAuthor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="By Author"
+                android:textColor="#777777"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
