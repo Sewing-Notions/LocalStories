@@ -1,71 +1,86 @@
 package com.localstories.screens
 
+import android.Manifest
 import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import androidx.compose.runtime.remember
-import androidx.core.content.ContextCompat
-import com.google.android.gms.maps.UiSettings
+import androidx.core.app.ActivityCompat
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.localstories.viewmodel.MapViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun MapScreen(mapViewModel: MapViewModel) {
     val cameraPositionState = rememberCameraPositionState()
     val context = LocalContext.current
-    val userLocation = mapViewModel.userLocation.value
+    val userLocation: LatLng? by mapViewModel.userLocation.collectAsState()
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            mapViewModel.fetchUserLocation(context, fusedLocationClient)
-        } else {
-            // Handle permission denied
+    // Kat says: CatKISS Gemini
+    LaunchedEffect(key1 = true) { // key1 = true ensures this runs once on composition
+        while (true) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                    location?.let {
+                        Log.d("MapScreen", "Fetched location: ${it.latitude}, ${it.longitude}")
+                        val currentLatLng = LatLng(it.latitude, it.longitude)
+                        mapViewModel.updateUserLocation(currentLatLng) // Update ViewModel
+                        // Optionally move the camera to the new location
+                        //cameraPositionState.position = CameraPosition.fromLatLngZoom(currentLatLng, 1f)
+                    }
+                }.addOnFailureListener { e ->
+                    Log.e("MapScreen", "Error getting location", e)
+                }
+            }
+            delay(15000L) // Delay for 15 seconds
         }
     }
 
-    LaunchedEffect(Unit) {
-    when (PackageManager.PERMISSION_GRANTED) {
-        ContextCompat.checkSelfPermission( context, android.Manifest.permission.ACCESS_FINE_LOCATION ) -> {
-            mapViewModel.fetchUserLocation(context, fusedLocationClient)
-            }
-            else -> {
-                permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
-            }
-        }
+    val hasLocationPermission = remember(context) {
+        ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
-        uiSettings = MapUiSettings(
-            compassEnabled = false,
-            mapToolbarEnabled = false,
-            myLocationButtonEnabled = false,
-            scrollGesturesEnabled = true
+        properties = MapProperties(
+            isMyLocationEnabled = hasLocationPermission
         )
     ) {
-        userLocation?.let {
-            Marker(
-                state = MarkerState(position = it),
-                title = "Your Location",
-                snippet = "This is your current location"
-            )
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(it, 15f)
-        }
+        // add other markers
+        // mapViewModel.storyMarkers.collectAsState().value.forEach { storyMarker ->
+        //     Marker(
+        //         state = MarkerState(position = storyMarker.latLng),
+        //         title = storyMarker.title
+        //     )
+        // }
     }
 }

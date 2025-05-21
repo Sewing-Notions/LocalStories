@@ -1,29 +1,30 @@
 package com.localstories
 
+// for google maps functionality
 import android.content.Intent
+import android.location.LocationRequest
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationServices
+import com.google.android.libraries.places.api.Places
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.localstories.databinding.ActivityMainBinding
-
-// for google maps functionality
-import com.localstories.ui.theme.LocalStoriesTheme
-import com.google.android.libraries.places.api.Places
 import com.localstories.screens.MapScreen
+import com.localstories.ui.theme.LocalStoriesTheme
 import com.localstories.utils.ManifestUtils
 import com.localstories.viewmodel.MapViewModel
 
@@ -117,4 +118,6 @@ class MainActivity : AppCompatActivity() {
         val adapter = PlaceAdapter(demoPlaces)
         nearbyList.adapter = adapter
     }
+
+
 }

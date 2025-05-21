@@ -62,9 +62,12 @@ dependencies {
     // for google maps functionality
     implementation(libs.places)
     implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
     implementation(libs.maps.compose)
     implementation libs.androidx.drawerlayout
     implementation libs.androidx.coordinatorlayout
+    implementation(libs.androidx.runtime)
+    implementation libs.kotlinx.coroutines.core
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
