@@ -118,6 +118,4 @@ class MainActivity : AppCompatActivity() {
         val adapter = PlaceAdapter(demoPlaces)
         nearbyList.adapter = adapter
     }
-
-
 }

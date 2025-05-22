@@ -31,8 +31,12 @@ fun MapScreen(mapViewModel: MapViewModel) {
     val userLocation: LatLng? by mapViewModel.userLocation.collectAsState()
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
+    val pinnedLocationsList by mapViewModel.pinnedLocations.collectAsState()
+
     // Kat says: CatKISS Gemini
     LaunchedEffect(key1 = true) { // key1 = true ensures this runs once on composition
+        mapViewModel.loadPinnedLocations()
+
         while (true) {
             if (ActivityCompat.checkSelfPermission(
                     context,
@@ -75,12 +79,19 @@ fun MapScreen(mapViewModel: MapViewModel) {
             isMyLocationEnabled = hasLocationPermission
         )
     ) {
+        pinnedLocationsList.forEach { pinnedLocation ->
+            Marker(
+                state = MarkerState(position = pinnedLocation.position),
+                title = pinnedLocation.title,
+                snippet = pinnedLocation.snippet
+            )
+        }
         // add other markers
         // mapViewModel.storyMarkers.collectAsState().value.forEach { storyMarker ->
         //     Marker(
         //         state = MarkerState(position = storyMarker.latLng),
         //         title = storyMarker.title
         //     )
-        // }
+        //
     }
 }
