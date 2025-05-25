@@ -26,7 +26,7 @@ class PlaceAdapter(private val places: List<Place>) :
         holder.name.text = place.name
         holder.details.text = place.details
 
-        // Optional: what happens when a place is clicked
+
         holder.itemView.setOnClickListener {
             Toast.makeText(it.context, "Clicked: ${place.name}", Toast.LENGTH_SHORT).show()
         }
