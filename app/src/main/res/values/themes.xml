@@ -10,4 +10,7 @@
     <style name="Theme.App.SplashScreen" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/splash_background</item>
     </style>
+    <style name="Theme.LocalStories" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- your colors and styles -->
+    </style>
 </resources>

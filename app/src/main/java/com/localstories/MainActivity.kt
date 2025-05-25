@@ -60,14 +60,25 @@ class MainActivity : AppCompatActivity() {
 
         val compassButton: Button = findViewById(R.id.compassButton)
         compassButton.setOnClickListener {
-            Toast.makeText(this, "Compass Clicked!", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, CompassActivity::class.java)
+            startActivity(intent)
+            drawerLayout.closeDrawer(GravityCompat.START)
         }
+
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_add -> {
                     startActivity(Intent(this, AddStoryActivity::class.java))
+                    true
+                }
+                R.id.nav_explore -> {
+                    startActivity(Intent(this, ExploreActivity::class.java))
+                    true
+                }
+                R.id.nav_saved -> {
+                    startActivity(Intent(this, SavedActivity::class.java))
                     true
                 }
                 else -> false

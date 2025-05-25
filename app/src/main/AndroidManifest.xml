@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!--for google maps functionality-->
@@ -14,7 +15,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.App.SplashScreen"
         tools:targetApi="31">
-
+        <activity
+            android:name=".CompassActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SavedActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ExploreActivity"
+            android:exported="false" />
         <activity
             android:name=".AddStoryActivity"
             android:exported="false" />
