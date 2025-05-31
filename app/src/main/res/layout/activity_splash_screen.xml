@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#111827">
+
+    <!-- Splash Screen Logo -->
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="384dp"
+        android:layout_height="612dp"
+        android:layout_centerInParent="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/logo_large" />
+
+    <!-- Welcome Text Below the Logo -->
+    <TextView
+        android:id="@+id/mainWelcomeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logoImage"
+        android:layout_marginLeft="92dp"
+        android:layout_marginTop="-229dp"
+        android:text="Rediscover your city's history"
+        android:textAlignment="center"
+        android:textColor="#CCCCCC"
+        android:textSize="18sp" />
+</RelativeLayout>
