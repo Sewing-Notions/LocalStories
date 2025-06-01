@@ -35,7 +35,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
 
     // Kat says: CatKISS Gemini
     LaunchedEffect(key1 = true) { // key1 = true ensures this runs once on composition
-        mapViewModel.loadPinnedLocations()
+        //mapViewModel.loadNearestLocation(userLocation ?: LatLng(0.0, 0.0), "35.247.54.23", "3000")
 
         while (true) {
             if (ActivityCompat.checkSelfPermission(
@@ -58,7 +58,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     Log.e("MapScreen", "Error getting location", e)
                 }
             }
-            delay(15000L) // Delay for 15 seconds
+            delay(25000L) // Delay for 25 seconds
         }
     }
 
