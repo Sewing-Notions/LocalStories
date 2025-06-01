@@ -16,6 +16,9 @@
         android:theme="@style/Theme.App.SplashScreen"
         tools:targetApi="31">
         <activity
+            android:name=".StoryDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".CompassActivity"
             android:exported="false" />
         <activity
@@ -27,12 +30,12 @@
         <activity
             android:name=".AddStoryActivity"
             android:exported="false" />
-
         <activity
             android:name=".SplashScreenActivity"
-            android:exported="true"> <!-- required because it has MAIN + LAUNCHER -->
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -48,4 +51,5 @@
             android:value="${MAPS_KEY}" />
 
     </application>
+
 </manifest>

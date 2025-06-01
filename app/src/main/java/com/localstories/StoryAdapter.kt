@@ -1,5 +1,6 @@
 package com.localstories
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,14 +29,30 @@ class StoryAdapter(
 
     override fun onBindViewHolder(holder: StoryViewHolder, position: Int) {
         val story = stories[position]
+
         holder.title.text = story.title
         holder.author.text = "By ${story.author}"
         holder.description.text = story.description
 
+        // Show/hide delete button
         holder.deleteButton?.visibility = if (showDeleteButton) View.VISIBLE else View.GONE
-
         holder.deleteButton?.setOnClickListener {
             onDeleteClick?.invoke(position)
+        }
+
+        // Handle card click for story detail
+        holder.itemView.setOnClickListener {
+            val context = holder.itemView.context
+            val intent = Intent(context, StoryDetailActivity::class.java).apply {
+                putExtra("storyId", story.storyId)
+                putExtra("title", story.title)
+                putExtra("description", story.description)
+                putExtra("dateOfFact", story.dateOfFact.toString())
+                putExtra("photoPath", story.photoPath)
+                putExtra("locationId", story.locationId)
+                putExtra("userId", story.userId)
+            }
+            context.startActivity(intent)
         }
     }
 

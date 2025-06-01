@@ -19,10 +19,8 @@ class SavedActivity : AppCompatActivity() {
             finish()
         }
 
-        savedStories = mutableListOf(
-            Story("Victorian Architecture", "Sarah Smith", "A beautiful example of 19th century design..."),
-            Story("Old Harbor Mystery", "Anna Lee", "The untold story of a historic port town...")
-        )
+        // Use the shared saved stories list
+        savedStories = SavedStories.stories
 
         val recyclerView = findViewById<RecyclerView>(R.id.savedRecycler)
         recyclerView.layoutManager = LinearLayoutManager(this)

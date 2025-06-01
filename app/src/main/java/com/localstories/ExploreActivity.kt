@@ -29,9 +29,36 @@ class ExploreActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         val stories = mutableListOf(
-            Story("The Hidden History of Central Square", "John Doe", "Discovering the fascinating story behind the city’s most iconic gathering place..."),
-            Story("Victorian Architecture", "Sarah Smith", "A beautiful example of 19th century design..."),
-            Story("Market Square History", "Alex Johnson", "Explore how this market transformed through decades...")
+            Story(
+                storyId = "1",
+                title = "The Hidden History of Central Square",
+                description = "Discovering the fascinating story behind the city’s most iconic gathering place...",
+                dateOfFact = "1889",
+                photoPath = "", // or path to a placeholder
+                locationId = "loc001",
+                userId = "user001",
+                author = "John Doe"
+            ),
+            Story(
+                storyId = "2",
+                title = "Victorian Architecture",
+                description = "A beautiful example of 19th century design...",
+                dateOfFact = "1895",
+                photoPath = "",
+                locationId = "loc002",
+                userId = "user002",
+                author = "Sarah Smith"
+            ),
+            Story(
+                storyId = "3",
+                title = "Market Square History",
+                description = "Explore how this market transformed through decades...",
+                dateOfFact = "1901",
+                photoPath = "",
+                locationId = "loc003",
+                userId = "user003",
+                author = "Alex Johnson"
+            )
         )
 
         adapter = StoryAdapter(stories, showDeleteButton = false)
