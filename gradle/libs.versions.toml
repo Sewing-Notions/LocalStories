@@ -16,6 +16,7 @@ constraintlayout = "2.2.1"
 
 # for google maps functionality
 mapsCompose = "6.4.1"
+okhttp = "4.12.0"
 places = "4.2.0"
 playServicesLocation = "21.3.0"
 playServicesMaps = "19.2.0"
@@ -47,6 +48,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 
 # for google maps functionality
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 places = { module = "com.google.android.libraries.places:places", version.ref = "places" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
