@@ -77,6 +77,7 @@
             android:layout_marginBottom="4dp" />
 
         <EditText
+            android:id="@+id/locationName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter location name"
@@ -94,6 +95,7 @@
             android:layout_marginBottom="4dp" />
 
         <EditText
+            android:id="@+id/locationTimePeriod"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter period"
@@ -111,6 +113,7 @@
             android:layout_marginBottom="4dp" />
 
         <EditText
+            android:id="@+id/locationStory"
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:hint="Share the historical significance..."
@@ -122,6 +125,7 @@
 
         <!-- Submit Button -->
         <Button
+            android:id="@+id/submitButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Share Story"

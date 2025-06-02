@@ -2,9 +2,6 @@ package com.localstories.viewmodel
 
 import android.location.Location
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.StateFlow
@@ -17,12 +14,10 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
-import kotlin.code
 
 data class PinnedLocation(
     val id: String,
@@ -50,6 +45,9 @@ class MapViewModel: ViewModel() {
 
         loadNearestLocation(newLocation, "35.247.54.23", "3000")
         purgeFarLocations(newLocation)
+    }
+    fun getUserLocation(): LatLng {
+        return _userLocation.value!!
     }
 
     private val _pinnedLocations = MutableStateFlow<List<PinnedLocation>>(emptyList())
@@ -166,5 +164,9 @@ class MapViewModel: ViewModel() {
             userAndroidLocation.distanceTo(locationAndroid) / 1000 <= 2 // distance in km
         }
         Log.d("MapViewModel", "Purged far locations")
+    }
+
+    fun generatePinnedLocation(locationName: String, locationInfo: String? = null): PinnedLocation {
+        return PinnedLocation("70D0", getUserLocation(), locationName, locationInfo?: null)
     }
 }
