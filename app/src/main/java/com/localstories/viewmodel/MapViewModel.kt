@@ -4,6 +4,7 @@ import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.localstories.Story
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +25,12 @@ data class PinnedLocation(
     val position: LatLng,
     val title: String,
     val snippet: String? = null
+)
+data class Location(
+    val id: String,
+    val name: String,
+    val latitude: Double,
+    val longitude: Double
 )
 
 val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
@@ -127,11 +134,15 @@ class MapViewModel: ViewModel() {
         var url = "http://$ip:$port/add_location"
         var client = OkHttpClient()
 
-        var body = "".toRequestBody(JSON)
+        var json = JSONObject()
+        json.put("latitude", location.position.latitude)
+        json.put("longitude", location.position.longitude)
+        json.put("name", location.title)
+        json.put("locationId", location.id)
 
         var request = Request.Builder()
             .url(url)
-            .post(body)
+            .post(json.toString().toRequestBody(JSON))
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -143,6 +154,40 @@ class MapViewModel: ViewModel() {
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     _operationStatus.value = "Location added successfully!"
+                } else {
+                    Log.e("MainActivity", "Unsuccessful response: ${response.code} ${response.message}")
+                    _operationStatus.value = "Server error: ${response.message} (Code: ${response.code})"
+                }
+            }
+        })
+    }
+
+    fun addStory(story: Story, ip: String, port: String) {
+        var url = "http://$ip:$port/add_story"
+        var client = OkHttpClient()
+
+        var json = JSONObject()
+        json.put("title", story.title)
+        json.put("description", story.description)
+        json.put("dateOfFact", story.dateOfFact)
+        json.put("photoPath", story.photoPath)
+        json.put("locationId", story.locationId)
+        json.put("userId", story.userId)
+
+        var request = Request.Builder()
+            .url(url)
+            .post(json.toString().toRequestBody(JSON))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("MainActivity", "Network request failed", e)
+                _operationStatus.value = "Failed to add story: ${e.message}"
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    _operationStatus.value = "Story added successfully!"
                 } else {
                     Log.e("MainActivity", "Unsuccessful response: ${response.code} ${response.message}")
                     _operationStatus.value = "Server error: ${response.message} (Code: ${response.code})"
