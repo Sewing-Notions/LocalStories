@@ -78,6 +78,18 @@
                 android:background="@drawable/image_rounded_bg"
                 android:backgroundTint="#817F7F"
                 android:text="Save Story" />
+
+            <Button
+                android:id="@+id/reportButton"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_gravity="end"
+                android:background="@drawable/image_rounded_bg"
+                android:backgroundTint="#D9534F"
+                android:text="Report"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
         </LinearLayout>
     </ScrollView>
 

@@ -199,7 +199,7 @@ class MapViewModel: ViewModel() {
         })
     }
 
-    fun addReport() {
+    fun addReport(storyId: String) {
         var url = "http://35.247.54.23:3000/add_report"
         var client = OkHttpClient()
 
@@ -208,7 +208,7 @@ class MapViewModel: ViewModel() {
         json.put("reportId", "report70D0")
         json.put("reason", "This is a report")
         json.put("reportDate", Date().toString())
-        json.put("storyId", "70D0")
+        json.put("storyId", storyId)
 
         var request = Request.Builder()
             .url(url)

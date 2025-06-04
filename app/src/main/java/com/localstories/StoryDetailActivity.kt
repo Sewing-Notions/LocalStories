@@ -10,11 +10,13 @@ import android.widget.Button
 import android.widget.Toast
 import java.io.File
 import android.widget.ImageButton
+import com.localstories.viewmodel.MapViewModel
 
 class StoryDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_story_detail)
+        val mapViewModel = MapViewModel() // Initialize the MapViewModel
 
         val title = intent.getStringExtra("title")
         val description = intent.getStringExtra("description")
@@ -58,6 +60,11 @@ class StoryDetailActivity : AppCompatActivity() {
 
             SavedStories.stories.add(story)
             Toast.makeText(this, "Story saved!", Toast.LENGTH_SHORT).show()
+        }
+        val reportButton = findViewById<Button>(R.id.reportButton)
+        reportButton.setOnClickListener {
+            mapViewModel.addReport(intent.getStringExtra("storyId") ?: "")
+            Toast.makeText(this, "Thank you. We’ll review this story.", Toast.LENGTH_SHORT).show()
         }
     }
 }
