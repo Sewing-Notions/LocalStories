@@ -4,6 +4,7 @@ import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.model.kotlin.localDate
 import com.localstories.Story
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
+import java.time.ZonedDateTime
+import java.util.Date
 
 data class PinnedLocation(
     val id: String,
@@ -188,6 +191,39 @@ class MapViewModel: ViewModel() {
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     _operationStatus.value = "Story added successfully!"
+                } else {
+                    Log.e("MainActivity", "Unsuccessful response: ${response.code} ${response.message}")
+                    _operationStatus.value = "Server error: ${response.message} (Code: ${response.code})"
+                }
+            }
+        })
+    }
+
+    fun addReport() {
+        var url = "http://35.247.54.23:3000/add_report"
+        var client = OkHttpClient()
+
+        var json = JSONObject()
+        json.put("userId", "70D0")
+        json.put("reportId", "report70D0")
+        json.put("reason", "This is a report")
+        json.put("reportDate", Date().toString())
+        json.put("storyId", "70D0")
+
+        var request = Request.Builder()
+            .url(url)
+            .post(json.toString().toRequestBody(JSON))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("MainActivity", "Network request failed", e)
+                _operationStatus.value = "Failed to add report: ${e.message}"
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    _operationStatus.value = "Report added successfully!"
                 } else {
                     Log.e("MainActivity", "Unsuccessful response: ${response.code} ${response.message}")
                     _operationStatus.value = "Server error: ${response.message} (Code: ${response.code})"
