@@ -50,7 +50,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     location?.let {
                         Log.d("MapScreen", "Fetched location: ${it.latitude}, ${it.longitude}")
                         val currentLatLng = LatLng(it.latitude, it.longitude)
-                        mapViewModel.updateUserLocation(currentLatLng) // Update ViewModel
+                        mapViewModel.updateUserLocationInActivity(currentLatLng) // Update ViewModel
                         // Optionally move the camera to the new location
                         //cameraPositionState.position = CameraPosition.fromLatLngZoom(currentLatLng, 1f)
                     }
