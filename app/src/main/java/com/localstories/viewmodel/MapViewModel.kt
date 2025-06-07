@@ -2,7 +2,11 @@ package com.localstories.viewmodel
 
 import android.location.Location
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.kotlin.localDate
 import com.localstories.Story
@@ -48,6 +52,9 @@ class MapViewModel(): ViewModel() {
         purgeFarLocations(newLocation)
         loadNearestLocation(newLocation, "35.247.54.23", "3000")
     }
+    var cameraPostionState by mutableStateOf<CameraPosition?>(null)
+        private set
+    val initialCameraPosition = CameraPosition.fromLatLngZoom(LatLng(37.4220, -122.0840), 10f) // Default to GooglePlex
 
     private val _pinnedLocations = MutableStateFlow<List<PinnedLocation>>(emptyList())
     val pinnedLocations: StateFlow<List<PinnedLocation>> = _pinnedLocations.asStateFlow()
@@ -78,20 +85,33 @@ class MapViewModel(): ViewModel() {
                         val stories = json.getJSONArray("relatedStories")
 
                         val storyDetails = StringBuilder()
+
+                        val pin = PinnedLocation(
+                            id = location.getString("locationId"),
+                            position = LatLng(location.getDouble("latitude"), location.getDouble("longitude")),
+                            title = location.getString("name")
+                        )
+                        if (!_pinnedLocations.value.any { it.id == pin.id }) {
+                            Log.d("MapViewModel", "Adding pinned location: $pin")
+                            _pinnedLocations.value = _pinnedLocations.value + pin
+                        }
+
+                        /* TODO format stories to this
+                        Story(
+                            storyId = "3",
+                            title = "Market Square History",
+                            description = "Explore how this market transformed through decades...",
+                            dateOfFact = "1901",
+                            photoPath = "",
+                            locationId = "loc003",
+                            userId = "user003",
+                            author = "Alex Johnson"
+                        )
+                         */
                         for (i in 0 until stories.length()) {
                             val story = stories.getJSONObject(i)
                             val title = story.getString("title")
                             val description = story.getString("description")
-
-                            val pin = PinnedLocation(
-                                id = location.getString("locationId"),
-                                position = LatLng(location.getDouble("latitude"), location.getDouble("longitude")),
-                                title = location.getString("name")
-                            )
-                            if (!_pinnedLocations.value.any { it.id == pin.id }) {
-                                Log.d("MapViewModel", "Adding pinned location: $pin")
-                                _pinnedLocations.value = _pinnedLocations.value + pin
-                            }
 
                             storyDetails.append("$title\n$description\n\n")
                         }
@@ -102,7 +122,8 @@ class MapViewModel(): ViewModel() {
                         }
 
                         //_operationStatus.value = "Location get successful!"
-                        //Log.d("MapViewModel", "Response body: $responseBodyString")
+                        Log.d("MapViewModel", "Message: $message")
+                        Log.d("MapViewModel", "Response body: $responseBodyString")
                     }
                 } catch (e: Exception) {
                     Log.e("MapViewModel", "Error reading response body", e)
@@ -238,5 +259,15 @@ class MapViewModel(): ViewModel() {
         Log.d("MapViewModel", "generateStory: $storyId")
 
         return Story(storyId, storyTitle, storyDescription?: "", storyDate, "/images/seattle_underground_ghost.jpg", locationId, "70D0", "70D0")
+    }
+
+    fun moveToLocation(latLng: LatLng, zoomLevel: Float = 15f) {
+        cameraPostionState = CameraPosition.builder()
+            .target(latLng)
+            .zoom(zoomLevel)
+            .build()
+    }
+    fun onCameraMoved() {
+        cameraPostionState = null
     }
 }

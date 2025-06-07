@@ -11,10 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import androidx.core.app.ActivityCompat
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -23,19 +25,22 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.localstories.viewmodel.MapViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MapScreen(mapViewModel: MapViewModel) {
-    val cameraPositionState = rememberCameraPositionState()
     val context = LocalContext.current
     val userLocation: LatLng? by mapViewModel.userLocation.collectAsState()
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
     val pinnedLocationsList by mapViewModel.pinnedLocations.collectAsState()
+    val cameraPositionState = rememberCameraPositionState {
+        position = mapViewModel.initialCameraPosition // Use initial position from ViewModel
+    }
+    val coroutineScope = rememberCoroutineScope()
 
     // Kat says: CatKISS Gemini
-    LaunchedEffect(key1 = true) { // key1 = true ensures this runs once on composition
-        //mapViewModel.loadNearestLocation(userLocation ?: LatLng(0.0, 0.0), "35.247.54.23", "3000")
+    LaunchedEffect(key1 = true) {
 
         while (true) {
             if (ActivityCompat.checkSelfPermission(
@@ -59,6 +64,17 @@ fun MapScreen(mapViewModel: MapViewModel) {
                 }
             }
             delay(25000L) // Delay for 25 seconds
+        }
+    }
+    LaunchedEffect(mapViewModel.cameraPostionState) {
+        mapViewModel.cameraPostionState?.let { newPosition ->
+            coroutineScope.launch {
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newCameraPosition(newPosition),
+                    durationMs = 1000 // Animation duration
+                )
+                mapViewModel.onCameraMoved() // Reset the state in ViewModel
+            }
         }
     }
 
