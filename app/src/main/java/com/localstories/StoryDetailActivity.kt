@@ -1,5 +1,6 @@
 package com.localstories
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
@@ -10,6 +11,7 @@ import android.widget.Button
 import android.widget.Toast
 import java.io.File
 import android.widget.ImageButton
+import com.localstories.viewmodel.MapViewModel
 
 class StoryDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,9 +41,10 @@ class StoryDetailActivity : AppCompatActivity() {
         } else {
             imageView.setImageResource(R.drawable.image_rounded_bg)
         }
-        val closeBtn = findViewById<ImageButton>(R.id.closeButton)
+        val closeBtn = findViewById<ImageButton>(R.id.closeExploreBtn)
         closeBtn.setOnClickListener {
-            finish() // closes the current activity
+            startActivity(Intent(this, ExploreActivity::class.java))
+            finish()
         }
         val saveButton = findViewById<Button>(R.id.saveStoryButton)
         saveButton.setOnClickListener {
@@ -56,8 +59,17 @@ class StoryDetailActivity : AppCompatActivity() {
                 author = intent.getStringExtra("author") ?: ""
             )
 
-            SavedStories.stories.add(story)
-            Toast.makeText(this, "Story saved!", Toast.LENGTH_SHORT).show()
+            if (!SavedStories.stories.any { it.storyId == story.storyId }) {
+                SavedStories.stories.add(story)
+                Toast.makeText(this, "Story saved!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Story already saved.", Toast.LENGTH_SHORT).show()
+            }
+        }
+        val reportButton = findViewById<Button>(R.id.reportButton)
+        reportButton.setOnClickListener {
+            //mapViewModel.addReport(intent.getStringExtra("storyId") ?: "")
+            Toast.makeText(this, "Thank you. We’ll review this story.", Toast.LENGTH_SHORT).show()
         }
         val reportButton = findViewById<Button>(R.id.reportButton)
         reportButton.setOnClickListener {

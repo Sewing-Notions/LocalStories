@@ -4,6 +4,8 @@ import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.model.kotlin.localDate
+import com.localstories.Story
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +20,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
+import java.util.Date
 
 data class PinnedLocation(
     val id: String,
@@ -25,29 +30,21 @@ data class PinnedLocation(
     val title: String,
     val snippet: String? = null
 )
+data class Location(
+    val id: String,
+    val name: String,
+    val latitude: Double,
+    val longitude: Double
+)
 
 val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
 
-class MapViewModel: ViewModel() {
+class MapViewModel(): ViewModel() {
     private val _userLocation = MutableStateFlow<LatLng?>(null)
     val userLocation: StateFlow<LatLng?> = _userLocation.asStateFlow()
 
-    // Add a StateFlow to communicate messages/errors to the UI
-    private val _operationStatus = MutableStateFlow<String?>(null)
-    val operationStatus: StateFlow<String?> = _operationStatus.asStateFlow()
-
-    fun clearOperationStatus() {
-        _operationStatus.value = null
-    }
-
-    fun updateUserLocation(newLocation: LatLng) {
+    fun updateUserLocationInActivity(newLocation: LatLng) {
         _userLocation.value = newLocation
-
-        loadNearestLocation(newLocation, "35.247.54.23", "3000")
-        purgeFarLocations(newLocation)
-    }
-    fun getUserLocation(): LatLng {
-        return _userLocation.value!!
     }
 
     private val _pinnedLocations = MutableStateFlow<List<PinnedLocation>>(emptyList())
@@ -65,7 +62,6 @@ class MapViewModel: ViewModel() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("MapViewModel", "Network request failed", e)
-                _operationStatus.value = "Failed to get story: ${e.message}"
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -108,49 +104,106 @@ class MapViewModel: ViewModel() {
                     }
                 } catch (e: Exception) {
                     Log.e("MapViewModel", "Error reading response body", e)
-                    _operationStatus.value = "Error processing response."
                 } finally {
                     //response.body?.string()
                 }
             }
-            /*
-        _pinnedLocations.value = listOf(
-            PinnedLocation(id = "1", position = LatLng(34.0522, -118.2437), title = "Los Angeles", snippet = "City of Angels"),
-            PinnedLocation(id = "2", position = LatLng(40.7128, -74.0060), title = "New York", snippet = "The Big Apple"),
-            PinnedLocation(id = "3", position = LatLng(37.7749, -122.4194), title = "San Francisco", snippet = "Golden Gate City"),
-            PinnedLocation(id = "4", position = LatLng(48.8566, 2.3522), title = "Paris")
-        ) */
     })}
-
     fun addPinnedLocation(location: PinnedLocation, ip: String, port: String) {
         // ?latitude=${location.position.latitude}&longitude=${location.position.longitude}&name=${location.title}&locationId=70d0
         var url = "http://$ip:$port/add_location"
         var client = OkHttpClient()
 
-        var body = "".toRequestBody(JSON)
+        var json = JSONObject()
+        json.put("locationId", location.id)
+        json.put("name", location.title)
+        json.put("latitude", location.position.latitude)
+        json.put("longitude", location.position.longitude)
 
         var request = Request.Builder()
             .url(url)
-            .post(body)
+            .post(json.toString().toRequestBody(JSON))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("MapViewModel", "Network request failed", e)
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBodyString = response.body?.string()
+                if (response.isSuccessful) {
+                    Log.e("MapViewModel", "Location added successfully!")
+                } else {
+                    Log.e("MapViewModel", "Unsuccessful location response: ${response.code} ${response.message}. Body: $responseBodyString")
+                }
+            }
+        })
+    }
+    fun addStory(story: Story, ip: String, port: String) {
+        var url = "http://$ip:$port/add_story"
+        var client = OkHttpClient()
+
+        var json = JSONObject()
+        json.put("title", story.title)
+        json.put("description", story.description)
+        json.put("dateOfFact", story.dateOfFact)
+        json.put("photoPath", story.photoPath)
+        json.put("locationId", story.locationId)
+        json.put("userId", story.userId)
+        json.put("storyId", story.storyId)
+
+
+        var request = Request.Builder()
+            .url(url)
+            .post(json.toString().toRequestBody(JSON))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("MapViewModel", "Network request failed", e)
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBodyString = response.body?.string()
+                if (response.isSuccessful) {
+                    Log.d("MapViewModel", "Story added successfully!")
+                } else {
+                    Log.e("MapViewModel", "Unsuccessful story response: ${response.code} ${response.message}. Body: $responseBodyString")
+                }
+            }
+        })
+    }
+    fun addReport(storyId: String) {
+        var url = "http://35.247.54.23:3000/add_report"
+        var client = OkHttpClient()
+
+        var json = JSONObject()
+        json.put("userId", "70D0")
+        json.put("reportId", "report70D0")
+        json.put("reason", "This is a report")
+        json.put("reportDate", Date().toString())
+        json.put("storyId", storyId)
+
+        var request = Request.Builder()
+            .url(url)
+            .post(json.toString().toRequestBody(JSON))
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("MainActivity", "Network request failed", e)
-                _operationStatus.value = "Failed to add location: ${e.message}"
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    _operationStatus.value = "Location added successfully!"
+                    Log.d("MainActivity", "Report added successfully!")
                 } else {
                     Log.e("MainActivity", "Unsuccessful response: ${response.code} ${response.message}")
-                    _operationStatus.value = "Server error: ${response.message} (Code: ${response.code})"
                 }
             }
         })
     }
-
     fun purgeFarLocations(userLocation: LatLng) {
         val userAndroidLocation = Location("").apply {
             latitude = userLocation.latitude
@@ -167,6 +220,20 @@ class MapViewModel: ViewModel() {
     }
 
     fun generatePinnedLocation(locationName: String, locationInfo: String? = null): PinnedLocation {
-        return PinnedLocation("70D0", getUserLocation(), locationName, locationInfo?: null)
+        var locationID = userLocation.value?.latitude.toString() + userLocation.value?.longitude.toString()
+        locationID = locationID.replace(".", "")
+        Log.d("MapViewModel", "generatePinnedLocation: $locationID")
+
+        return PinnedLocation(locationID, LatLng(userLocation.value!!.latitude, userLocation.value!!.longitude), locationName, locationInfo?: null)
+    }
+    fun generateStory(storyTitle: String, storyDescription: String? = "", storyDate: String, locationId: String) :Story {
+        var storyId =
+            userLocation.value?.latitude.toString() +
+                userLocation.value?.longitude.toString() + "-" +
+                SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()).toString()
+        storyId = storyId.replace(".", "")
+        Log.d("MapViewModel", "generateStory: $storyId")
+
+        return Story(storyId, storyTitle, storyDescription?: "", storyDate, "/images/seattle_underground_ghost.jpg", locationId, "70D0", "70D0")
     }
 }
