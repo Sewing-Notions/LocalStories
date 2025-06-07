@@ -45,6 +45,8 @@ class MapViewModel(): ViewModel() {
 
     fun updateUserLocationInActivity(newLocation: LatLng) {
         _userLocation.value = newLocation
+        purgeFarLocations(newLocation)
+        loadNearestLocation(newLocation, "35.247.54.23", "3000")
     }
 
     private val _pinnedLocations = MutableStateFlow<List<PinnedLocation>>(emptyList())
@@ -180,7 +182,8 @@ class MapViewModel(): ViewModel() {
 
         var json = JSONObject()
         json.put("userId", "70D0")
-        json.put("reportId", "report70D0")
+        json.put("reportId", "report" + storyId + "-" +
+                SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()).toString())
         json.put("reason", "This is a report")
         json.put("reportDate", Date().toString())
         json.put("storyId", storyId)

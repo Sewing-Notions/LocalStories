@@ -16,6 +16,7 @@ class StoryDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_story_detail)
+        val mapViewModel = MapViewModel()
 
         val title = intent.getStringExtra("title")
         val description = intent.getStringExtra("description")
@@ -62,7 +63,7 @@ class StoryDetailActivity : AppCompatActivity() {
         }
         val reportButton = findViewById<Button>(R.id.reportButton)
         reportButton.setOnClickListener {
-            //mapViewModel.addReport(intent.getStringExtra("storyId") ?: "")
+            mapViewModel.addReport(intent.getStringExtra("storyId") ?: "")
             Toast.makeText(this, "Thank you. We’ll review this story.", Toast.LENGTH_SHORT).show()
         }
     }
