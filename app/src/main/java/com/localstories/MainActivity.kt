@@ -1,7 +1,10 @@
 package com.localstories
 
 // for google maps functionality
+import android.annotation.SuppressLint
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.LocationRequest
 import android.os.Bundle
 import android.os.Handler
@@ -13,9 +16,12 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +31,7 @@ import com.bumptech.glide.Glide
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -42,6 +49,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var mapViewModel: MapViewModel
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                locationPermissionGranted = true
+                getCurrentLocationAndFocus()
+            } else {
+                locationPermissionGranted = false
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    private var locationPermissionGranted = false
 
     companion object {
         const val ADD_STORY_REQUEST_CODE = 101
@@ -89,6 +110,7 @@ class MainActivity : AppCompatActivity() {
                 MapScreen(mapViewModel)
             }
         }
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
 
         drawerLayout = findViewById(R.id.drawerLayout)
@@ -105,6 +127,10 @@ class MainActivity : AppCompatActivity() {
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
+        val locationButton: View = findViewById(R.id.locationBtn)
+        locationButton.setOnClickListener {
+            checkLocationPermissionAndFocus()
+        }
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNav.setOnItemSelectedListener { item ->
@@ -191,4 +217,45 @@ class MainActivity : AppCompatActivity() {
     fun formatStory(storyTitle: String, storyDescription: String, storyDate: String, locationId: String): Story {
         return mapViewModel.generateStory(storyTitle, storyDescription, storyDate, locationId)
     }
+
+    private fun checkLocationPermissionAndFocus() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                locationPermissionGranted = true
+                getCurrentLocationAndFocus()
+            }
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this, Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                Toast.makeText(this, "Location permission is needed to show current location.", Toast.LENGTH_LONG).show()
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getCurrentLocationAndFocus() {
+        if (locationPermissionGranted) {
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location ->
+                    if (location != null) {
+                        val currentLatLng = LatLng(location.latitude, location.longitude)
+                        mapViewModel.moveToLocation(currentLatLng)
+                    } else {
+                        Toast.makeText(this, "Unable to get current location. Make sure location is enabled.", Toast.LENGTH_LONG).show()
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Failed to get current location.", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "Location permission not granted.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 }
