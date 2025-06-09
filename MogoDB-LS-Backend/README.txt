@@ -1,3 +1,10 @@
+RUNNING THE SERVER WITHOUT INTERRUPTIONS
+
+sudo npm install -g pm2
+sudo pm2 start server.js
+sudo pm2 save
+sudo pm2 startup
+
 ADMINISTRATOR CMD
 
 1. copy over file directory with nodes and DB
