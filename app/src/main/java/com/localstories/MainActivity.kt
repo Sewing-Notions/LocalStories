@@ -44,12 +44,19 @@ import com.localstories.utils.ManifestUtils
 import com.localstories.viewmodel.MapViewModel
 import com.localstories.viewmodel.PinnedLocation
 import android.media.MediaPlayer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
+
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
-    private lateinit var mapViewModel: MapViewModel
+    private val mapViewModel: MapViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private var localStories: List<Story> = emptyList()
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -106,12 +113,19 @@ class MainActivity : AppCompatActivity() {
         val mapLayout = findViewById<ComposeView>(R.id.mapLayout)
         mapLayout.setContent {
             LocalStoriesTheme {
-                mapViewModel = MapViewModel()
+                //mapViewModel = MapViewModel()
                 MapScreen(mapViewModel)
             }
         }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mapViewModel.nearbyStories.collect { stories ->
+                    localStories = stories
+                    //Log.d("MainActivity", "Nearby stories: $localStories")
+                }
+            }
+        }
 
         drawerLayout = findViewById(R.id.drawerLayout)
 
@@ -142,7 +156,9 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_explore -> {
-                    startActivity(Intent(this, ExploreActivity::class.java))
+                    val intent = Intent(this, ExploreActivity::class.java)
+                    intent.putParcelableArrayListExtra("localStories", ArrayList(localStories))
+                    startActivity(intent)
                     true
                 }
                 R.id.nav_saved -> {
@@ -192,6 +208,7 @@ class MainActivity : AppCompatActivity() {
             Place("Heritage Library", "0.6 km away • Built in 1901"),
             Place("City Clock Tower", "0.8 km away • Built in 1850")
         )
+        var localPlaces = emptyList<Place>()
 
         val adapter = PlaceAdapter(demoPlaces)
         nearbyList.adapter = adapter

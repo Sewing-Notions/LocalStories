@@ -46,6 +46,8 @@ val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
 class MapViewModel(): ViewModel() {
     private val _userLocation = MutableStateFlow<LatLng?>(null)
     val userLocation: StateFlow<LatLng?> = _userLocation.asStateFlow()
+    private val _nearbyStories = MutableStateFlow<List<Story>>(emptyList())
+    val nearbyStories: StateFlow<List<Story>> = _nearbyStories.asStateFlow()
 
     fun updateUserLocationInActivity(newLocation: LatLng) {
         _userLocation.value = newLocation
@@ -79,6 +81,8 @@ class MapViewModel(): ViewModel() {
 
                     if (response.isSuccessful && responseBodyString != null) {
                         val json = JSONObject(responseBodyString)
+                        Log.d("MapViewModel", "Response body: $responseBodyString")
+                        Log.d("MapViewModel", "JSON: $json")
                         val location = json.getJSONObject("nearestLocation")
                         val locationName = location.getString("name")
                         val distance = json.getDouble("distanceKm")
@@ -96,22 +100,25 @@ class MapViewModel(): ViewModel() {
                             _pinnedLocations.value = _pinnedLocations.value + pin
                         }
 
-                        /* TODO format stories to this
-                        Story(
-                            storyId = "3",
-                            title = "Market Square History",
-                            description = "Explore how this market transformed through decades...",
-                            dateOfFact = "1901",
-                            photoPath = "",
-                            locationId = "loc003",
-                            userId = "user003",
-                            author = "Alex Johnson"
-                        )
-                         */
                         for (i in 0 until stories.length()) {
-                            val story = stories.getJSONObject(i)
-                            val title = story.getString("title")
-                            val description = story.getString("description")
+                            val jsonStory = stories.getJSONObject(i)
+
+                            var story = Story(
+                                storyId = jsonStory.getString("storyId"),
+                                title = jsonStory.getString("title"),
+                                description = jsonStory.getString("description"),
+                                dateOfFact = jsonStory.getString("dateOfFact"),
+                                photoPath = jsonStory.getString("photoPath"),
+                                locationId = jsonStory.getString("locationId"),
+                                userId = jsonStory.getString("userId"),
+                                author = ""
+                            )
+                            if (!_nearbyStories.value.any { it.storyId == story.storyId }) {
+                                Log.d("MapViewModel", "Adding story: $story")
+                                _nearbyStories.value = _nearbyStories.value + story
+                            }
+                            val title = jsonStory.getString("title")
+                            val description = jsonStory.getString("description")
 
                             storyDetails.append("$title\n$description\n\n")
                         }

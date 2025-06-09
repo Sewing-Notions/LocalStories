@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 import android.graphics.Typeface
+import android.os.Build
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,10 +17,18 @@ class ExploreActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: StoryAdapter
 
+    private var receivedStories: List<Story> = emptyList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_explore)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            receivedStories = intent.getParcelableArrayListExtra("localStories", Story::class.java) ?: emptyList()
+        } else {
+            @Suppress("DEPRECATION")
+            receivedStories = intent.getParcelableArrayListExtra<Story>("localStories") ?: emptyList()
+        }
         val closeBtn = findViewById<ImageButton>(R.id.closeExploreBtn)
         closeBtn.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
@@ -27,6 +37,7 @@ class ExploreActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.exploreRecycler)
         recyclerView.layoutManager = LinearLayoutManager(this)
+
 
         val stories = mutableListOf(
             Story(
@@ -61,7 +72,8 @@ class ExploreActivity : AppCompatActivity() {
             )
         )
 
-        adapter = StoryAdapter(stories, showDeleteButton = false)
+        //adapter = StoryAdapter(stories, showDeleteButton = false)
+        adapter = StoryAdapter(receivedStories.toMutableList(), showDeleteButton = false)
         recyclerView.adapter = adapter
 
         setupFilterButtons()

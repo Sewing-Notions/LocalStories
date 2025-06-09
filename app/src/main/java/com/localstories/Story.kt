@@ -1,5 +1,9 @@
 package com.localstories
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Story(
     val storyId: String,
     val title: String,
@@ -9,4 +13,8 @@ data class Story(
     val locationId: String,
     val userId: String,
     val author: String
-)
+) : Parcelable {
+    override fun describeContents(): Int {
+        return 0
+    }
+}
