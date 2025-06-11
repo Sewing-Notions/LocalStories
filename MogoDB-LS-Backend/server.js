@@ -229,6 +229,35 @@ app.get('/compass_usage/:userId', async (req, res) => {
     }
 });
 
+app.delete('/delete_all_stories', async (req, res) => {
+  try {
+    await Story.deleteMany({});
+    res.status(200).json({ message: 'All stories deleted successfully!' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete stories', details: err.message });
+  }
+});
+app.get('/export_db', async (req, res) => {
+  try {
+    const users = await User.find();
+    const locations = await Location.find();
+    const stories = await Story.find();
+    const reports = await Report.find();
+    const compassUsage = await CompassUsage.find();
+
+    res.status(200).json({
+      User: users,
+      Location: locations,
+      Story: stories,
+      Report: reports,
+      CompassUsage: compassUsage
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to export database', details: err.message });
+  }
+});
+
+
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on http://35.247.54.23:${port}`);
 });
