@@ -228,15 +228,22 @@ app.get('/compass_usage/:userId', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch compass usage', details: err.message });
     }
 });
-//only works with >>> curl -X DELETE http://35.247.54.23:3000/delete_all_stories
-app.delete('/delete_all_stories', async (req, res) => {
+//only works with >>> curl -X DELETE http://35.247.54.23:3000/delete_all_data
+app.delete('/delete_all_data', async (req, res) => {
   try {
-    await Story.deleteMany({});
-    res.status(200).json({ message: 'All stories deleted successfully!' });
+    await Promise.all([
+      User.deleteMany({}),
+      Location.deleteMany({}),
+      Story.deleteMany({}),
+      Report.deleteMany({}),
+      CompassUsage.deleteMany({})
+    ]);
+    res.status(200).json({ message: 'All data deleted successfully!' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to delete stories', details: err.message });
+    res.status(500).json({ error: 'Failed to delete all data', details: err.message });
   }
 });
+
 app.get('/export_db', async (req, res) => {
   try {
     const users = await User.find();
