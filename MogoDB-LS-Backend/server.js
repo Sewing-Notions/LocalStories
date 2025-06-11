@@ -228,7 +228,7 @@ app.get('/compass_usage/:userId', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch compass usage', details: err.message });
     }
 });
-
+//only works with >>> curl -X DELETE http://35.247.54.23:3000/delete_all_stories
 app.delete('/delete_all_stories', async (req, res) => {
   try {
     await Story.deleteMany({});
