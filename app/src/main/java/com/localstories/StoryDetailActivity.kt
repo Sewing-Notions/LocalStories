@@ -7,13 +7,19 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.localstories.R
 import android.net.Uri
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import java.io.File
 import android.widget.ImageButton
+import androidx.activity.viewModels
 import com.localstories.viewmodel.MapViewModel
+import com.localstories.viewmodel.StoriesViewModel
+import kotlin.getValue
 
 class StoryDetailActivity : AppCompatActivity() {
+    private val storiesViewModel: StoriesViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_story_detail)
@@ -32,6 +38,8 @@ class StoryDetailActivity : AppCompatActivity() {
 
         val imageView = findViewById<ImageView>(R.id.storyImage)
 
+        Log.d("StoryDetailActivity", "storiesViewModel: ${storiesViewModel.getStories()}")
+
         if (!photoPath.isNullOrEmpty()) {
             val imgFile = File(photoPath)
             if (imgFile.exists()) {
@@ -44,7 +52,9 @@ class StoryDetailActivity : AppCompatActivity() {
         }
         val closeBtn = findViewById<ImageButton>(R.id.closeExploreBtn)
         closeBtn.setOnClickListener {
-            startActivity(Intent(this, ExploreActivity::class.java))
+            val intent = Intent(this, ExploreActivity::class.java)
+            //intent.putParcelableArrayListExtra("localStories", storiesViewModel.stories.value as ArrayList<Story>)
+            startActivity(intent)
             finish()
         }
         val saveButton = findViewById<Button>(R.id.saveStoryButton)

@@ -81,8 +81,8 @@ class MapViewModel(): ViewModel() {
 
                     if (response.isSuccessful && responseBodyString != null) {
                         val json = JSONObject(responseBodyString)
-                        Log.d("MapViewModel", "Response body: $responseBodyString")
-                        Log.d("MapViewModel", "JSON: $json")
+                        //Log.d("MapViewModel", "Response body: $responseBodyString")
+                        //Log.d("MapViewModel", "JSON: $json")
                         val location = json.getJSONObject("nearestLocation")
                         val locationName = location.getString("name")
                         val distance = json.getDouble("distanceKm")
@@ -129,8 +129,8 @@ class MapViewModel(): ViewModel() {
                         }
 
                         //_operationStatus.value = "Location get successful!"
-                        Log.d("MapViewModel", "Message: $message")
-                        Log.d("MapViewModel", "Response body: $responseBodyString")
+                        //Log.d("MapViewModel", "Message: $message")
+                        //Log.d("MapViewModel", "Response body: $responseBodyString")
                     }
                 } catch (e: Exception) {
                     Log.e("MapViewModel", "Error reading response body", e)

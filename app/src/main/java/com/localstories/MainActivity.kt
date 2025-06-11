@@ -47,6 +47,7 @@ import android.media.MediaPlayer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.localstories.viewmodel.StoriesViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -54,9 +55,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private val mapViewModel: MapViewModel by viewModels()
+    private val storiesViewModel: StoriesViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
-    private var localStories: List<Story> = emptyList()
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -121,8 +121,8 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mapViewModel.nearbyStories.collect { stories ->
-                    localStories = stories
-                    //Log.d("MainActivity", "Nearby stories: $localStories")
+                    storiesViewModel.addStories(stories)
+                    //Log.d("MainActivity", "Nearby stories: ${storiesViewModel.getStories()}")
                 }
             }
         }
@@ -157,7 +157,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_explore -> {
                     val intent = Intent(this, ExploreActivity::class.java)
-                    intent.putParcelableArrayListExtra("localStories", ArrayList(localStories))
                     startActivity(intent)
                     true
                 }
