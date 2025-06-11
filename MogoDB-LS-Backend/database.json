@@ -53,34 +53,37 @@
         }
     ],
     "Story": [
-        {
-            "storyId": "story001",
-            "title": "The Ghost of Pike Place Market",
-            "description": "A ghostly figure has been seen wandering the market at night.",
-            "dateOfFact": "2023-01-01",
-            "photoPath": "/images/pike_place_ghost.jpg",
-            "locationId": "location001",
-            "userId": "user123"
-        },
-        {
-            "storyId": "story002",
-            "title": "Haunted Seattle Underground",
-            "description": "Strange noises and apparitions have been reported in the underground tunnels.",
-            "dateOfFact": "2023-02-01",
-            "photoPath": "/images/seattle_underground_ghost.jpg",
-            "locationId": "location002",
-            "userId": "user456"
-        },
-        {
-            "storyId": "story003",
-            "title": "The Phantom of Smith Tower",
-            "description": "A ghostly figure has been seen on the observation deck.",
-            "dateOfFact": "2023-03-01",
-            "photoPath": "/images/smith_tower_ghost.jpg",
-            "locationId": "location003",
-            "userId": "user789"
-        }
-    ],
+  {
+    "storyId": "story001",
+    "title": "The Ghost of Pike Place Market",
+    "description": "A ghostly figure has been seen wandering the market at night.",
+    "dateOfFact": "2023-01-01",
+    "photoPath": "/images/pike_place_ghost.jpg",
+    "locationId": "location001",
+    "userId": "user123",
+    "images": ["/images/pike_place_ghost.jpg"]
+  },
+  {
+    "storyId": "story002",
+    "title": "Haunted Seattle Underground",
+    "description": "Strange noises and apparitions have been reported in the underground tunnels.",
+    "dateOfFact": "2023-02-01",
+    "photoPath": "/images/seattle_underground_ghost.jpg",
+    "locationId": "location002",
+    "userId": "user456",
+    "images": ["/images/seattle_underground_ghost.jpg"]
+  },
+  {
+    "storyId": "story003",
+    "title": "The Phantom of Smith Tower",
+    "description": "A ghostly figure has been seen on the observation deck.",
+    "dateOfFact": "2023-03-01",
+    "photoPath": "/images/smith_tower_ghost.jpg",
+    "locationId": "location003",
+    "userId": "user789",
+    "images": ["/images/smith_tower_ghost.jpg"]
+  }
+],
     "Location": [
         {
             "locationId": "location001",
