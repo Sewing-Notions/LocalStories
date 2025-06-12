@@ -1,3 +1,88 @@
+ENDPOINTS
+
+
+Here the list of DB commands for Endpoints:
+
+GET /nearest_location
+http://35.247.54.23:3000/nearest_location?latitude=48.888&longitude=20.3321 
+
+GET /stories
+http://35.247.54.23:3000/stories?search=ghost&page=1&limit=5
+
+GET /locations
+http://35.247.54.23:3000/locations?search=Seattle&page=1&limit=5
+
+GET /user/:userId
+http://35.247.54.23:3000/user/user123
+
+GET /compass_usage/:userId
+http://35.247.54.23:3000/compass_usage/user123
+
+DELETE /delete_all_data (CMDER Terminal)
+curl -X DELETE http://35.247.54.23:3000/delete_all_data
+
+GET /export_db
+http://35.247.54.23:3000/export_db
+
+GET /reports/:userId
+http://35.247.54.23:3000/reports/user123
+
+
+POST /add_story
+curl -X POST http://35.247.54.23:3000/add_story \
+-H "Content-Type: application/json" \
+-d '{
+  "storyId": "story999",
+  "title": "New Ghost Sighting",
+  "description": "A mysterious figure was seen near the Space Needle.",
+  "dateOfFact": "2025-06-11",
+  "photoPath": "/images/space_ghost.jpg",
+  "locationId": "476205117-122349285",
+  "userId": "user123"
+}'
+
+POST /add_compass_usage
+curl -X POST http://35.247.54.23:3000/add_compass_usage \
+-H "Content-Type: application/json" \
+-d '{
+  "locationName": "Pike Place Market",
+  "userId": "user123",
+  "timestamp": "2025-06-11T12:00:00Z",
+  "heading": 90
+}'
+
+POST /add_user
+curl -X POST http://35.247.54.23:3000/add_user \
+-H "Content-Type: application/json" \
+-d '{
+  "userId": "user999",
+  "username": "ghosthunterX",
+  "email": "ghostx@example.com"
+}'
+
+POST /add_report
+curl -X POST http://35.247.54.23:3000/add_report \
+-H "Content-Type: application/json" \
+-d '{
+  "userId": "user123",
+  "reportId": "report999",
+  "reason": "Inappropriate content",
+  "reportDate": "2025-06-11T12:30:00Z",
+  "storyId": "story999"
+}'
+
+POST /add_location
+curl -X POST http://35.247.54.23:3000/add_location \
+-H "Content-Type: application/json" \
+-d '{
+  "locationId": "location999",
+  "name": "Haunted Alley",
+  "latitude": 47.61,
+  "longitude": -122.33
+}'
+
+
+====================================================================
 
 I have re-initialised the DB (luckily DELETE only works with CURL)  
 
