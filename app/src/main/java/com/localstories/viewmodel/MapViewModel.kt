@@ -89,8 +89,8 @@ data class Location(
 val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
 
 class MapViewModel(): ViewModel() {
-    private val _userLocation = MutableStateFlow<LatLng?>(null)
-    val userLocation: StateFlow<LatLng?> = _userLocation.asStateFlow()
+    //private val _userLocation = MutableStateFlow<LatLng?>(null)
+    //val userLocation: StateFlow<LatLng?> = _userLocation.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -102,7 +102,7 @@ class MapViewModel(): ViewModel() {
     }
 
     fun updateUserLocationInActivity(newLocation: LatLng) {
-        _userLocation.value = newLocation
+        UserLocationRepository.setLocation(newLocation)
         purgeFarLocations(newLocation)
         loadNearestLocation(newLocation, "35.247.54.23", "3000")
     }
@@ -306,16 +306,20 @@ class MapViewModel(): ViewModel() {
     }
 
     fun generatePinnedLocation(locationName: String, locationInfo: String? = null): PinnedLocation {
-        var locationID = userLocation.value?.latitude.toString() + userLocation.value?.longitude.toString()
+        var locationID = UserLocationRepository.getLocation().value?.latitude.toString() + UserLocationRepository.getLocation().value?.longitude.toString()
         locationID = locationID.replace(".", "")
         Log.d("MapViewModel", "generatePinnedLocation: $locationID")
 
-        return PinnedLocation(locationID, LatLng(userLocation.value!!.latitude, userLocation.value!!.longitude), locationName, locationInfo?: null)
+        return PinnedLocation(
+            locationID,
+            LatLng(UserLocationRepository.getLocation().value!!.latitude, UserLocationRepository.getLocation().value!!.longitude),
+            locationName,
+            locationInfo?: null)
     }
     fun generateStory(storyTitle: String, storyDescription: String? = "", storyDate: String, locationId: String) :Story {
         var storyId =
-            userLocation.value?.latitude.toString() +
-                userLocation.value?.longitude.toString() + "-" +
+            UserLocationRepository.getLocation().value?.latitude.toString() +
+                UserLocationRepository.getLocation().value?.longitude.toString() + "-" +
                 SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()).toString()
         storyId = storyId.replace(".", "")
         Log.d("MapViewModel", "generateStory: $storyId")
