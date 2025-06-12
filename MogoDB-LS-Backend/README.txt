@@ -1,3 +1,44 @@
+
+I have re-initialised the DB (luckily DELETE only works with CURL)  
+
+ 
+
+C:\Node\cmder (cmder@1.0.0) λ  
+
+curl -X DELETE http://35.247.54.23:3000/delete_all_data  
+
+{"message":"All data deleted successfully!"}  
+
+ 
+
+C:\Node\cmder (cmder@1.0.0) λ  
+
+curl -X GET http://35.247.54.23:3000/  
+
+Node.js SERVER is running and reachable!  
+
+ 
+
+C:\Node\cmder (cmder@1.0.0) λ  
+
+curl -X GET http://35.247.54.23:3000/export_db  
+
+{"User":[],"Location":[],"Story":[],"Report":[],"CompassUsage":[]} 
+
+ 
+
+to repopulate the database run  
+
+sudo nodes SeedDatabase.js  
+
+you need to install nodes and create the file from https://github.com/Sewing-Notions/LocalStories/blob/Peta/MogoDB-LS-Backend/SeedDatabase.js 
+and the database initial seed: 
+
+https://github.com/Sewing-Notions/LocalStories/blob/Peta/MogoDB-LS-Backend/database.json 
+
+
+
+
 RUNNING THE SERVER WITHOUT INTERRUPTIONS
 
 sudo npm install -g pm2
