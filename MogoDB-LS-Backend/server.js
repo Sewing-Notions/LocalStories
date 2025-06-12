@@ -28,6 +28,71 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
     res.send('Node.js SERVER is running and reachable!');
 });
+app.get('/add_user', async (req, res) => {
+    const { userId, username, email } = req.query;
+    if (!userId || !username || !email) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    try {
+        await User.create({ userId, username, email });
+        res.status(200).json({ message: 'User added successfully!' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to add user', details: err.message });
+    }
+});
+app.get('/add_compass_usage', async (req, res) => {
+    const { locationName, userId, timestamp, heading } = req.query;
+    if (!locationName || !userId || !timestamp || heading === undefined) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    try {
+        await CompassUsage.create({ locationName, userId, timestamp, heading });
+        res.status(200).json({ message: 'Compass usage added successfully!' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to add compass usage', details: err.message });
+    }
+});
+app.get('/add_report', async (req, res) => {
+    const { userId, reportId, reason, reportDate, storyId } = req.query;
+    if (!userId || !reportId || !reason || !reportDate || !storyId) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    try {
+        await Report.create({ userId, reportId, reason, reportDate, storyId });
+        res.status(200).json({ message: 'Report added successfully!' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to add report', details: err.message });
+    }
+});
+app.get('/add_story', async (req, res) => {
+    const { storyId, title, description, dateOfFact, photoPath, locationId, userId } = req.query;
+    if (!storyId || !title || !description || !dateOfFact || !photoPath || !locationId || !userId) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    try {
+        await Story.create({ storyId, title, description, dateOfFact, photoPath, locationId, userId });
+        res.status(200).json({ message: 'Story added successfully!' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to add story', details: err.message });
+    }
+});
+app.get('/add_location', async (req, res) => {
+    const { locationId, name, latitude, longitude } = req.query;
+    if (!locationId || !name || latitude === undefined || longitude === undefined) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    try {
+        await Location.create({ locationId, name, latitude, longitude });
+        res.status(200).json({ message: 'Location added successfully!' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to add location', details: err.message });
+    }
+});
 
 app.post('/add_compass_usage', async (req, res) => {
     const { locationName, userId, timestamp, heading } = req.body;
