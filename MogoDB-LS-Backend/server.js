@@ -127,6 +127,21 @@ app.get('/stories', async (req, res) => {
     }
 });
 
+app.get('/reports/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  const reports = await Report.find({ userId });
+
+  if (reports.length === 0) {
+    return res.status(404).json({ message: 'No reports found for this user.' });
+  }
+
+  res.status(200).json({
+    userId,
+    reports
+  });
+});
+
 app.get('/locations', async (req, res) => {
     const { search = '', page = 1, limit = 10 } = req.query;
     try {
