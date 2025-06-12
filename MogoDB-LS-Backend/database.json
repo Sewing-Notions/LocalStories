@@ -60,8 +60,7 @@
     "dateOfFact": "2023-01-01",
     "photoPath": "/images/pike_place_ghost.jpg",
     "locationId": "location001",
-    "userId": "user123",
-    "images": ["/images/pike_place_ghost.jpg"]
+    "userId": "user123"
   },
   {
     "storyId": "story002",
@@ -70,8 +69,7 @@
     "dateOfFact": "2023-02-01",
     "photoPath": "/images/seattle_underground_ghost.jpg",
     "locationId": "location002",
-    "userId": "user456",
-    "images": ["/images/seattle_underground_ghost.jpg"]
+    "userId": "user456"
   },
   {
     "storyId": "story003",
@@ -80,8 +78,7 @@
     "dateOfFact": "2023-03-01",
     "photoPath": "/images/smith_tower_ghost.jpg",
     "locationId": "location003",
-    "userId": "user789",
-    "images": ["/images/smith_tower_ghost.jpg"]
+    "userId": "user789"
   }
 ],
     "Location": [
