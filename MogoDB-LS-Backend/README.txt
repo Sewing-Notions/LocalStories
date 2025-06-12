@@ -1,3 +1,157 @@
+ENDPOINTS
+
+
+Here the list of DB commands for Endpoints:
+
+GET /nearest_location
+http://35.247.54.23:3000/nearest_location?latitude=48.888&longitude=20.3321 
+
+GET /stories
+http://35.247.54.23:3000/stories?search=ghost&page=1&limit=5
+
+GET /locations
+http://35.247.54.23:3000/locations?search=Seattle&page=1&limit=5
+
+GET /user/:userId
+http://35.247.54.23:3000/user/user123
+
+GET /compass_usage/:userId
+http://35.247.54.23:3000/compass_usage/user123
+
+DELETE /delete_all_data (CMDER Terminal)
+curl -X DELETE http://35.247.54.23:3000/delete_all_data
+
+GET /export_db
+http://35.247.54.23:3000/export_db
+
+GET /reports/:userId
+http://35.247.54.23:3000/reports/user123
+
+added GET Endpoints co curl is not needed and one can directly add data to the server:  
+
+NEW USER  
+
+http://35.247.54.23:3000/add_user?userId=001&username=Alice&email=alice@example.com  
+
+NEW COMPASS  
+
+http://35.247.54.23:3000/add_compass_usage?locationName=CentralPark&userId=001&timestamp=2025-06-12T10:00:00Z&heading=90  
+
+NEW REPORT  
+
+http://35.247.54.23:3000/add_report?userId=001&reportId=R001&reason=InappropriateContent&reportDate=2025-06-12&storyId=S001  
+
+NEW STORY (with image)  
+
+http://35.247.54.23:3000/add_story?storyId=S001&title=HistoricTree&description=Oldest%20tree%20in%20the%20park&dateOfFact=1900-01-01&photoPath=/images/tree.jpg&locationId=L001&userId=001  
+
+NEW LOCATION  
+
+http://35.247.54.23:3000/add_location?locationId=L001&name=CentralPark&latitude=40.785091&longitude=-73.968285 
+
+POST /add_story
+curl -X POST http://35.247.54.23:3000/add_story \
+-H "Content-Type: application/json" \
+-d '{
+  "storyId": "story999",
+  "title": "New Ghost Sighting",
+  "description": "A mysterious figure was seen near the Space Needle.",
+  "dateOfFact": "2025-06-11",
+  "photoPath": "/images/space_ghost.jpg",
+  "locationId": "476205117-122349285",
+  "userId": "user123"
+}'
+
+POST /add_compass_usage
+curl -X POST http://35.247.54.23:3000/add_compass_usage \
+-H "Content-Type: application/json" \
+-d '{
+  "locationName": "Pike Place Market",
+  "userId": "user123",
+  "timestamp": "2025-06-11T12:00:00Z",
+  "heading": 90
+}'
+
+POST /add_user
+curl -X POST http://35.247.54.23:3000/add_user \
+-H "Content-Type: application/json" \
+-d '{
+  "userId": "user999",
+  "username": "ghosthunterX",
+  "email": "ghostx@example.com"
+}'
+
+POST /add_report
+curl -X POST http://35.247.54.23:3000/add_report \
+-H "Content-Type: application/json" \
+-d '{
+  "userId": "user123",
+  "reportId": "report999",
+  "reason": "Inappropriate content",
+  "reportDate": "2025-06-11T12:30:00Z",
+  "storyId": "story999"
+}'
+
+POST /add_location
+curl -X POST http://35.247.54.23:3000/add_location \
+-H "Content-Type: application/json" \
+-d '{
+  "locationId": "location999",
+  "name": "Haunted Alley",
+  "latitude": 47.61,
+  "longitude": -122.33
+}'
+
+
+====================================================================
+
+I have re-initialised the DB (luckily DELETE only works with CURL)  
+
+ 
+
+C:\Node\cmder (cmder@1.0.0) λ  
+
+curl -X DELETE http://35.247.54.23:3000/delete_all_data  
+
+{"message":"All data deleted successfully!"}  
+
+ 
+
+C:\Node\cmder (cmder@1.0.0) λ  
+
+curl -X GET http://35.247.54.23:3000/  
+
+Node.js SERVER is running and reachable!  
+
+ 
+
+C:\Node\cmder (cmder@1.0.0) λ  
+
+curl -X GET http://35.247.54.23:3000/export_db  
+
+{"User":[],"Location":[],"Story":[],"Report":[],"CompassUsage":[]} 
+
+ 
+
+to repopulate the database run  
+
+sudo nodes SeedDatabase.js  
+
+you need to install nodes and create the file from https://github.com/Sewing-Notions/LocalStories/blob/Peta/MogoDB-LS-Backend/SeedDatabase.js 
+and the database initial seed: 
+
+https://github.com/Sewing-Notions/LocalStories/blob/Peta/MogoDB-LS-Backend/database.json 
+
+
+
+
+RUNNING THE SERVER WITHOUT INTERRUPTIONS
+
+sudo npm install -g pm2
+sudo pm2 start server.js
+sudo pm2 save
+sudo pm2 startup
+
 ADMINISTRATOR CMD
 
 1. copy over file directory with nodes and DB
