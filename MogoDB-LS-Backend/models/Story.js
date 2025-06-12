@@ -8,8 +8,7 @@ const storySchema = new mongoose.Schema({
   dateOfFact: Date,
   photoPath: String,
   locationId: String,
-  userId: String,
-  images: [String] // New field added
+  userId: String
 });
 
 module.exports = mongoose.model('Story', storySchema);
