@@ -27,6 +27,27 @@ http://35.247.54.23:3000/export_db
 GET /reports/:userId
 http://35.247.54.23:3000/reports/user123
 
+added GET Endpoints co curl is not needed and one can directly add data to the server:  
+
+NEW USER  
+
+http://35.247.54.23:3000/add_user?userId=001&username=Alice&email=alice@example.com  
+
+NEW COMPASS  
+
+http://35.247.54.23:3000/add_compass_usage?locationName=CentralPark&userId=001&timestamp=2025-06-12T10:00:00Z&heading=90  
+
+NEW REPORT  
+
+http://35.247.54.23:3000/add_report?userId=001&reportId=R001&reason=InappropriateContent&reportDate=2025-06-12&storyId=S001  
+
+NEW STORY (with image)  
+
+http://35.247.54.23:3000/add_story?storyId=S001&title=HistoricTree&description=Oldest%20tree%20in%20the%20park&dateOfFact=1900-01-01&photoPath=/images/tree.jpg&locationId=L001&userId=001  
+
+NEW LOCATION  
+
+http://35.247.54.23:3000/add_location?locationId=L001&name=CentralPark&latitude=40.785091&longitude=-73.968285 
 
 POST /add_story
 curl -X POST http://35.247.54.23:3000/add_story \
