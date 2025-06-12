@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
@@ -23,21 +24,23 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.localstories.viewmodel.LocationRepository
 import com.localstories.viewmodel.MapViewModel
+import com.localstories.viewmodel.UserLocationRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun MapScreen(mapViewModel: MapViewModel) {
     val context = LocalContext.current
-    val userLocation: LatLng? by mapViewModel.userLocation.collectAsState()
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    val pinnedLocationsList by LocationRepository.pinnedLocationsFlow.collectAsState(initial = emptyList())
 
-    val pinnedLocationsList by mapViewModel.pinnedLocations.collectAsState()
     val cameraPositionState = rememberCameraPositionState {
-        position = mapViewModel.initialCameraPosition // Use initial position from ViewModel
+        position = UserLocationRepository.getCameraPosition().value ?: mapViewModel.initialCameraPosition
     }
     val coroutineScope = rememberCoroutineScope()
+
 
     // Kat says: CatKISS Gemini
     LaunchedEffect(key1 = true) {
@@ -66,8 +69,13 @@ fun MapScreen(mapViewModel: MapViewModel) {
             delay(25000L) // Delay for 25 seconds
         }
     }
-    LaunchedEffect(mapViewModel.cameraPostionState) {
-        mapViewModel.cameraPostionState?.let { newPosition ->
+    LaunchedEffect(cameraPositionState.isMoving) {
+        if (!cameraPositionState.isMoving) {
+            mapViewModel.updateCameraPostionFromMap(cameraPositionState.position)
+        }
+    }
+    LaunchedEffect(mapViewModel.currentCameraPositionFromMap) {
+        mapViewModel.currentCameraPostionState?.let { newPosition ->
             coroutineScope.launch {
                 cameraPositionState.animate(
                     update = CameraUpdateFactory.newCameraPosition(newPosition),
@@ -102,12 +110,5 @@ fun MapScreen(mapViewModel: MapViewModel) {
                 snippet = pinnedLocation.snippet
             )
         }
-        // add other markers
-        // mapViewModel.storyMarkers.collectAsState().value.forEach { storyMarker ->
-        //     Marker(
-        //         state = MarkerState(position = storyMarker.latLng),
-        //         title = storyMarker.title
-        //     )
-        //
     }
 }

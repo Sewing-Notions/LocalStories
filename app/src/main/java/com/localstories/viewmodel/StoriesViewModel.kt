@@ -14,20 +14,25 @@ object StoryRepository {
     }
     fun addStory(story: Story) {
         val currentStories = storiesRepository.value.orEmpty().toMutableList()
-        currentStories.add(story)
-        storiesRepository.value = currentStories
+        if (!currentStories.any { it.storyId == story.storyId }) {
+            currentStories.add(story)
+        }
+        storiesRepository.postValue(currentStories)
     }
     fun removeStory(story: Story) {
         val currentStories = storiesRepository.value.orEmpty().toMutableList()
         currentStories.remove(story)
-        storiesRepository.value = currentStories
+        storiesRepository.postValue(currentStories)
+    }
+
+    fun retainStoriesByLocationIds(validLocationIds: List<String>) {
+        val currentStories = storiesRepository.value.orEmpty().toMutableList()
+        val filteredStories = currentStories.filter { validLocationIds.contains(it.locationId) }
+        storiesRepository.value = filteredStories
     }
 }
 
 class StoriesViewModel : ViewModel() {
-    private var _stories = MutableLiveData<List<Story>>()
-    val stories: LiveData<List<Story>> get() = _stories
-
     fun getStories(): List<Story>? {
         return StoryRepository.getStories().value
     }

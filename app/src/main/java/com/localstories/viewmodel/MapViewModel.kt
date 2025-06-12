@@ -2,17 +2,25 @@ package com.localstories.viewmodel
 
 import android.location.Location
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.kotlin.localDate
 import com.localstories.Story
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType
@@ -27,6 +35,43 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
 import java.util.Date
+import kotlin.getValue
+
+object LocationRepository {
+    private val locationRepositoryLiveData = MutableLiveData<List<PinnedLocation>>(emptyList())
+    val pinnedLocations: LiveData<List<PinnedLocation>> = locationRepositoryLiveData
+
+    val pinnedLocationsFlow: Flow<List<PinnedLocation>> = pinnedLocations.asFlow()
+
+    fun getLocations(): LiveData<List<PinnedLocation>> {
+        return locationRepositoryLiveData
+    }
+    fun setLocations(locations: List<PinnedLocation>) {
+        locationRepositoryLiveData.postValue(locations)
+    }
+    fun addLocation(location: PinnedLocation) {
+        val currentLocations = locationRepositoryLiveData.value.orEmpty().toMutableList()
+        if (!currentLocations.any { it.id == location.id }) {
+            currentLocations.add(location)
+        }
+        locationRepositoryLiveData.postValue(currentLocations)
+    }
+    fun removeLocation(location: PinnedLocation) {
+        val currentLocations = locationRepositoryLiveData.value.orEmpty().toMutableList()
+        currentLocations.remove(location)
+        locationRepositoryLiveData.postValue(currentLocations)
+    }
+}
+object UserLocationRepository {
+    private val userLocation = MutableLiveData<LatLng>()
+    private val cameraPosition = MutableLiveData<CameraPosition>()
+
+    fun getLocation(): LiveData<LatLng> { return userLocation }
+    fun setLocation(location: LatLng) { userLocation.postValue(location) }
+
+    fun getCameraPosition(): LiveData<CameraPosition> { return cameraPosition }
+    fun setCameraPosition(position: CameraPosition) { cameraPosition.postValue(position) }
+}
 
 data class PinnedLocation(
     val id: String,
@@ -46,20 +91,27 @@ val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
 class MapViewModel(): ViewModel() {
     private val _userLocation = MutableStateFlow<LatLng?>(null)
     val userLocation: StateFlow<LatLng?> = _userLocation.asStateFlow()
-    private val _nearbyStories = MutableStateFlow<List<Story>>(emptyList())
-    val nearbyStories: StateFlow<List<Story>> = _nearbyStories.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            LocationRepository.pinnedLocationsFlow.collectLatest { currentPinnedLocations ->
+                val validLocationIds = currentPinnedLocations.map { it.id }
+                StoryRepository.retainStoriesByLocationIds(validLocationIds)
+            }
+        }
+    }
 
     fun updateUserLocationInActivity(newLocation: LatLng) {
         _userLocation.value = newLocation
         purgeFarLocations(newLocation)
         loadNearestLocation(newLocation, "35.247.54.23", "3000")
     }
-    var cameraPostionState by mutableStateOf<CameraPosition?>(null)
+    var currentCameraPostionState by mutableStateOf<CameraPosition?>(null)
         private set
     val initialCameraPosition = CameraPosition.fromLatLngZoom(LatLng(37.4220, -122.0840), 10f) // Default to GooglePlex
 
-    private val _pinnedLocations = MutableStateFlow<List<PinnedLocation>>(emptyList())
-    val pinnedLocations: StateFlow<List<PinnedLocation>> = _pinnedLocations.asStateFlow()
+    var currentCameraPositionFromMap by mutableStateOf<CameraPosition?>(null)
+        private set
 
     fun loadNearestLocation(userLocation: LatLng, ip: String, port: String) {
         var url = "http://$ip:$port/nearest_location?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}"
@@ -95,9 +147,9 @@ class MapViewModel(): ViewModel() {
                             position = LatLng(location.getDouble("latitude"), location.getDouble("longitude")),
                             title = location.getString("name")
                         )
-                        if (!_pinnedLocations.value.any { it.id == pin.id }) {
+                        if (!LocationRepository.getLocations().value.orEmpty().any { it.id == pin.id }) {
                             Log.d("MapViewModel", "Adding pinned location: $pin")
-                            _pinnedLocations.value = _pinnedLocations.value + pin
+                            LocationRepository.addLocation(pin)
                         }
 
                         for (i in 0 until stories.length()) {
@@ -113,9 +165,10 @@ class MapViewModel(): ViewModel() {
                                 userId = jsonStory.getString("userId"),
                                 author = ""
                             )
-                            if (!_nearbyStories.value.any { it.storyId == story.storyId }) {
+                            val existingStories = StoryRepository.getStories().value.orEmpty()
+                            if (!existingStories.any { it.storyId == story.storyId }) {
                                 Log.d("MapViewModel", "Adding story: $story")
-                                _nearbyStories.value = _nearbyStories.value + story
+                                StoryRepository.addStory(story)
                             }
                             val title = jsonStory.getString("title")
                             val description = jsonStory.getString("description")
@@ -236,17 +289,19 @@ class MapViewModel(): ViewModel() {
         })
     }
     fun purgeFarLocations(userLocation: LatLng) {
-        val userAndroidLocation = Location("").apply {
+        val userAndroidLocation = Location("user").apply {
             latitude = userLocation.latitude
             longitude = userLocation.longitude
         }
-        _pinnedLocations.value = _pinnedLocations.value.filter { pinnedLocation ->
-            val locationAndroid = Location("").apply {
+        val currentPinnedLocations = LocationRepository.getLocations().value.orEmpty()
+        val nearbyPinnedLocations = currentPinnedLocations.filter { pinnedLocation ->
+            val locationAndroid = Location("pinned").apply {
                 latitude = pinnedLocation.position.latitude
                 longitude = pinnedLocation.position.longitude
             }
             userAndroidLocation.distanceTo(locationAndroid) / 1000 <= 2 // distance in km
         }
+        LocationRepository.setLocations(nearbyPinnedLocations)
         Log.d("MapViewModel", "Purged far locations")
     }
 
@@ -268,13 +323,23 @@ class MapViewModel(): ViewModel() {
         return Story(storyId, storyTitle, storyDescription?: "", storyDate, "/images/seattle_underground_ghost.jpg", locationId, "70D0", "70D0")
     }
 
+    fun updateCameraPostionFromMap(position: CameraPosition) {
+        currentCameraPositionFromMap = position
+    }
+    fun saveCurrentCameraPositionToRepository() {
+        currentCameraPositionFromMap?.let {
+            UserLocationRepository.setCameraPosition(it)
+        }
+    }
+
     fun moveToLocation(latLng: LatLng, zoomLevel: Float = 15f) {
-        cameraPostionState = CameraPosition.builder()
+        Log.d("MapViewModel", "Moving to location: $latLng")
+        currentCameraPostionState = CameraPosition.builder()
             .target(latLng)
             .zoom(zoomLevel)
             .build()
     }
     fun onCameraMoved() {
-        cameraPostionState = null
+        currentCameraPostionState = null
     }
 }

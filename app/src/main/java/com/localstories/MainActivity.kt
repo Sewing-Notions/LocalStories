@@ -45,9 +45,11 @@ import com.localstories.viewmodel.MapViewModel
 import com.localstories.viewmodel.PinnedLocation
 import android.media.MediaPlayer
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.localstories.viewmodel.StoriesViewModel
+import com.localstories.viewmodel.StoryRepository
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -120,9 +122,10 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mapViewModel.nearbyStories.collect { stories ->
-                    storiesViewModel.addStories(stories)
-                    //Log.d("MainActivity", "Nearby stories: ${storiesViewModel.getStories()}")
+                StoryRepository.getStories().asFlow().collect { storiesFromRepository ->
+                    val currentStories = storiesFromRepository ?: emptyList()
+                    storiesViewModel.addStories(currentStories)
+                    //Log.d("MainActivity", "Stories from repository: ${storiesViewModel.getStories()}")
                 }
             }
         }
@@ -225,6 +228,11 @@ class MainActivity : AppCompatActivity() {
             mapViewModel.addPinnedLocation(pinnedLocation, "35.247.54.23", "3000")
             mapViewModel.addStory(formatStory(title, snippet, date, pinnedLocation.id), "35.247.54.23", "3000")
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapViewModel.saveCurrentCameraPositionToRepository()
     }
 
     fun formatPinnedLocation(title: String, info: String? = null): PinnedLocation {
