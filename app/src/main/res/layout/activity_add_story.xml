@@ -40,23 +40,34 @@
                 android:contentDescription="Close"
                 android:src="@android:drawable/ic_menu_close_clear_cancel" />
         </RelativeLayout>
-
+        <EditText
+            android:id="@+id/imageUrlInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Paste image URL (e.g. https://...)"
+            android:inputType="textUri"
+            android:background="@drawable/bg_rounded_edittext"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"/>
         <!-- Image Placeholder -->
         <FrameLayout
+            android:id="@+id/imageContainer"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginBottom="16dp"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:backgroundTint="#DDDDDD"
-            android:background="@drawable/bg_rounded_edittext">
+            android:background="@drawable/rounded_drag_handle">
 
+            <!-- This is the image that will be shown after picking -->
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:src="@android:drawable/ic_menu_camera" />
+                android:id="@+id/imagePreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Selected Image" />
 
+            <!-- Camera icon to click for picking an image -->
             <ImageView
+                android:id="@+id/pickImageIcon"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="bottom|end"
