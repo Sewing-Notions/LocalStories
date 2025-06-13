@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 class StoryAdapter(
     private var stories: MutableList<Story>,
@@ -17,6 +19,7 @@ class StoryAdapter(
     class StoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.storyTitle)
         val author: TextView = itemView.findViewById(R.id.storyAuthor)
+        val image: ImageView = itemView.findViewById(R.id.storyImage)
         val description: TextView = itemView.findViewById(R.id.storyDescription)
         val deleteButton: ImageButton? = itemView.findViewById(R.id.deleteButton)
     }
@@ -33,6 +36,13 @@ class StoryAdapter(
         holder.title.text = story.title
         holder.author.text = "By ${story.author}"
         holder.description.text = story.description
+
+        // Load image using Glide
+        Glide.with(holder.itemView.context)
+            .load(story.photoPath)
+            .placeholder(R.drawable.bg_rounded_edittext)
+            .error(android.R.drawable.ic_dialog_alert)
+            .into(holder.image)
 
         // Show/hide delete button
         holder.deleteButton?.visibility = if (showDeleteButton) View.VISIBLE else View.GONE
