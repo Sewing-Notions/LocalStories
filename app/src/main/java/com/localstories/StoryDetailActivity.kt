@@ -6,13 +6,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.localstories.R
-import android.net.Uri
+//import android.net.Uri
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import java.io.File
 import android.widget.ImageButton
 import androidx.activity.viewModels
+import com.bumptech.glide.Glide
 import com.localstories.viewmodel.MapViewModel
 import com.localstories.viewmodel.StoriesViewModel
 import kotlin.getValue
@@ -40,7 +41,7 @@ class StoryDetailActivity : AppCompatActivity() {
 
         Log.d("StoryDetailActivity", "storiesViewModel: ${storiesViewModel.getStories()}")
 
-        if (!photoPath.isNullOrEmpty()) {
+        /*if (!photoPath.isNullOrEmpty()) {
             val imgFile = File(photoPath)
             if (imgFile.exists()) {
                 imageView.setImageURI(Uri.fromFile(imgFile))
@@ -49,7 +50,17 @@ class StoryDetailActivity : AppCompatActivity() {
             }
         } else {
             imageView.setImageResource(R.drawable.image_rounded_bg)
+        } */
+        if (!photoPath.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(photoPath)
+                .placeholder(R.drawable.image_rounded_bg)
+                .error(R.drawable.image_rounded_bg)
+                .into(imageView)
+        } else {
+            imageView.setImageResource(R.drawable.image_rounded_bg)
         }
+
         val closeBtn = findViewById<ImageButton>(R.id.closeExploreBtn)
         closeBtn.setOnClickListener {
             val intent = Intent(this, ExploreActivity::class.java)
