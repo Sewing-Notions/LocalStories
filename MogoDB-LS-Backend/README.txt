@@ -1,4 +1,4 @@
-http://35.247.54.23:PORT/uploads/3f8a9c2e1b.jpg
+http://35.247.54.23:PORT/uploads/image.jpg
 curl -X POST http://35.247.54.23:PORT/add_story \
   -F "photo=@/path/to/image.jpg" \
   -F "storyId=story123" \
