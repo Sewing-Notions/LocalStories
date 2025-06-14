@@ -1,6 +1,6 @@
 http://35.247.54.23:PORT/uploads/image.jpg
 curl -X POST http://35.247.54.23:PORT/add_story \
-  -F "photo=@/path/to/image.jpg" \
+  -F "photo=@image.jpg" \
   -F "storyId=story123" \
   -F "title=Test Story" \
   -F "description=This is a test upload" \
