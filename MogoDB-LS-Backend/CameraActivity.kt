@@ -34,19 +34,36 @@ class CameraActivity : AppCompatActivity() {
         // Example button to trigger camera
         val cameraButton = findViewById<Button>(R.id.cameraButton)
         cameraButton.setOnClickListener {
-            openCamera()
+            checkPermissionsAndOpenCamera()
         }
     }
 
-    private fun openCamera() {
-        val photoFile = File.createTempFile("IMG_", ".jpg", cacheDir)
-        imageUri = FileProvider.getUriForFile(
-            this,
-            "${packageName}.provider",
-            photoFile
-        )
-        takePictureLauncher.launch(imageUri)
+private val permissions = arrayOf(
+    android.Manifest.permission.CAMERA,
+    android.Manifest.permission.READ_EXTERNAL_STORAGE
+)
+
+private val requestPermissionLauncher = registerForActivityResult(
+    ActivityResultContracts.RequestMultiplePermissions()
+) { permissions ->
+    val granted = permissions.entries.all { it.value }
+    if (granted) {
+        openCamera()
+    } else {
+        Toast.makeText(this, "Permissions are required to use the camera", Toast.LENGTH_SHORT).show()
     }
+}
+
+private fun checkPermissionsAndOpenCamera() {
+    if (permissions.all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }) {
+        checkPermissionsAndOpenCamera()
+    } else {
+        requestPermissionLauncher.launch(permissions)
+    }
+}
+
 
     private fun uploadImageToServer(imageUri: Uri) {
         val file = File(imageUri.path!!)
