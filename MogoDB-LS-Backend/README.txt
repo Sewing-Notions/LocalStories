@@ -1,4 +1,15 @@
+TEST =
+  244  sudo pm2 kill
+  245  pm2 flush
+  246  sudo pm2 reset all
+  247  sudo pm2 start server.js
+  248  sudo pm2 save
+  249  sudo pm2 startup
+  250  sudo pm2 status
+  251  history
+
 http://35.247.54.23:PORT/uploads/image.jpg
+
 curl -X POST http://35.247.54.23:PORT/add_story \
   -F "photo=@image.jpg" \
   -F "storyId=story123" \
@@ -7,7 +18,7 @@ curl -X POST http://35.247.54.23:PORT/add_story \
   -F "dateOfFact=2025-06-13" \
   -F "locationId=loc001" \
   -F "userId=user001"
-
+=============================================
 
 1. AndroidManifest.xml
 
