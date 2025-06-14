@@ -93,6 +93,17 @@ Replace ${applicationId} with your actual application ID (e.g., com.example.came
 
 </LinearLayout>
 
+6. add in MainActivity.kt
+
+object StorySession {
+     var storyId: String = ""
+     var title: String = ""
+     var description: String = ""
+     var dateOfFact: String = ""
+     var locationId: String = ""
+     var userId: String = ""
+}
+
 
 ENDPOINTS
 
