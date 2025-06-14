@@ -31,7 +31,7 @@ Replace ${applicationId} with your actual application ID (e.g., com.example.came
     <cache-path name="cache" path="." />
 </paths>
 
-3. Add File CameraActivity.kt
+3. Add File CameraActivity.kt (next to MainActivity.kt)
 
 
 
