@@ -57,6 +57,28 @@ Replace ${applicationId} with your actual application ID (e.g., com.example.came
         implementation libs.androidx.core.ktx.v1120
         implementation libs.androidx.activity.ktx
 
+5. Add res/layout/activity_camera.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cameraLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp"
+    tools:context=".CameraActivity">
+
+    <Button
+        android:id="@+id/cameraButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take Picture" />
+
+</LinearLayout>
+
+
 ENDPOINTS
 
 
