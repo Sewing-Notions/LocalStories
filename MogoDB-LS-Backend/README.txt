@@ -42,6 +42,10 @@ Replace ${applicationId} with your actual application ID (e.g., com.example.came
     // OkHttp (optional but recommended for logging)
     implementation libs.logging.interceptor
 
+        implementation libs.androidx.appcompat.v161
+        implementation libs.androidx.core.ktx.v1120
+        implementation libs.androidx.activity.ktx
+
 ENDPOINTS
 
 
