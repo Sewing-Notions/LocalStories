@@ -1,5 +1,5 @@
 
-package com.example.cameraapp
+package com.sensorreadings
 
 import android.net.Uri
 import android.os.Bundle
