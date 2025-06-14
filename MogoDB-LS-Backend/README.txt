@@ -33,6 +33,14 @@ Replace ${applicationId} with your actual application ID (e.g., com.example.came
 
 3. Add File CameraActivity.kt (next to MainActivity.kt)
 
+4. Add in Build.Gradle
+
+// Retrofit
+implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+// OkHttp (optional but recommended for logging)
+implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
 
 
 ENDPOINTS
