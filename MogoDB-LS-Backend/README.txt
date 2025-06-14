@@ -2,10 +2,11 @@
 
 Add this
 
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-    android:maxSdkVersion="28" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
 Add this inside the <application> tag:
 Replace ${applicationId} with your actual application ID (e.g., com.example.cameraapp).
@@ -30,6 +31,7 @@ Replace ${applicationId} with your actual application ID (e.g., com.example.came
     <cache-path name="cache" path="." />
 </paths>
 
+3. Add File 
 
 
 
