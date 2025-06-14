@@ -1,3 +1,7 @@
+ADDING MULTER to NODES!!! 
+cd ~/local_stories
+npm install multer
+==============================================
 TEST =
   244  sudo pm2 kill
   245  pm2 flush
