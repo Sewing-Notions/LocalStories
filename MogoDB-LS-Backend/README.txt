@@ -10,10 +10,12 @@ Add this
 Add this inside the <application> tag:
 Replace ${applicationId} with your actual application ID (e.g., com.example.cameraapp).
 >>>>> the application ID is defined in your app’s build.gradle file (Module: app):
+   >>>> defaultConfig {
+   >>>>     applicationId "com.sensorreadings"
 
 <provider
     android:name="androidx.core.content.FileProvider"
-    android:authorities="${applicationId}.provider"
+    android:authorities="com.sensorreadings.provider"
     android:exported="false"
     android:grantUriPermissions="true">
     <meta-data
