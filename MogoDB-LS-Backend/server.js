@@ -67,18 +67,32 @@ app.get('/add_report', async (req, res) => {
         res.status(500).json({ error: 'Failed to add report', details: err.message });
     }
 });
-app.get('/add_story', async (req, res) => {
-    const { storyId, title, description, dateOfFact, photoPath, locationId, userId } = req.query;
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname); // This keeps the original filename
+    //cb(null, Date.now() + '-' + file.originalname);   // timestamp?  
+  }
+});
+
+const upload = multer({ storage: storage });
+
+
+app.post('/add_story', upload.single('photo'), async (req, res) => {
+    const { storyId, title, description, dateOfFact, locationId, userId } = req.body;
+    const photoPath = req.file.path;
+
     if (!storyId || !title || !description || !dateOfFact || !photoPath || !locationId || !userId) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
-    try {
-        await Story.create({ storyId, title, description, dateOfFact, photoPath, locationId, userId });
-        res.status(200).json({ message: 'Story added successfully!' });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to add story', details: err.message });
-    }
+    await Story.create({ storyId, title, description, dateOfFact, photoPath, locationId, userId });
+    res.status(200).json({ message: 'Story added successfully!' });
 });
 app.get('/add_location', async (req, res) => {
     const { locationId, name, latitude, longitude } = req.query;
