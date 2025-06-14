@@ -54,7 +54,7 @@ class CameraActivity : AppCompatActivity() {
         val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://35.247.54.23:PORT/") // replace PORT
+            .baseUrl("http://35.247.54.23:3000/") // PORT
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
