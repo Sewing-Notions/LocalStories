@@ -68,7 +68,7 @@ class AddStoryActivity : AppCompatActivity() {
         val locationStoryEditText = findViewById<EditText>(R.id.locationStory)
 
 
-        val cameraButton = findViewById<FloatingActionButton>(R.id.cameraBtn)
+        val cameraButton = findViewById<FloatingActionButton>(R.id.pickImageIcon)
         cameraButton.setOnClickListener {
             // Start CameraActivity().checkPermissionsAndOpenCamera()
             val intent = Intent(this, CameraActivity::class.java)
