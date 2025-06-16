@@ -40,6 +40,8 @@
                 android:contentDescription="Close"
                 android:src="@android:drawable/ic_menu_close_clear_cancel" />
         </RelativeLayout>
+
+
         <EditText
             android:id="@+id/imageUrlInput"
             android:layout_width="match_parent"
@@ -57,7 +59,7 @@
             android:layout_marginBottom="16dp"
             android:background="@drawable/rounded_drag_handle">
 
-            <!-- This is the image that will be shown after picking -->
+            <!-- Background image that user pastes -->
             <ImageView
                 android:id="@+id/imagePreview"
                 android:layout_width="match_parent"
@@ -65,7 +67,17 @@
                 android:scaleType="centerCrop"
                 android:contentDescription="Selected Image" />
 
-            <!-- Camera icon to click for picking an image -->
+            <!-- Ghost GIF placed above imagePreview -->
+            <ImageView
+                android:id="@+id/ghostGif"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:scaleType="centerInside"
+                android:visibility="gone"
+                android:contentDescription="Ghost Animation" />
+
+            <!--  Camera icon in the corner -->
             <ImageView
                 android:id="@+id/pickImageIcon"
                 android:layout_width="48dp"
@@ -142,7 +154,6 @@
             android:text="Share Story"
             android:textColor="@android:color/white"
             android:background="@drawable/bg_rounded_button"
-            android:padding="12dp" />
-
+         />
     </LinearLayout>
 </ScrollView>

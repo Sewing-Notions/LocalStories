@@ -16,6 +16,28 @@ class AddStoryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_story)
+        val ghostGif = findViewById<ImageView>(R.id.ghostGif)
+
+// 1. Make it visible
+        ghostGif.visibility = ImageView.VISIBLE
+
+// 2. Load GIF with Glide
+        Glide.with(this)
+            .asGif()
+            .load(R.drawable.ghost2)
+            .into(ghostGif)
+
+// 3. Hide after 3 seconds with fade-out animation
+        ghostGif.postDelayed({
+            ghostGif.animate()
+                .alpha(0f)
+                .setDuration(500)
+                .withEndAction {
+                    ghostGif.visibility = ImageView.GONE
+                    ghostGif.alpha = 1f // Reset alpha
+                }
+                .start()
+        }, 3000)
 
         // UI Components
         val imageUrlInput = findViewById<EditText>(R.id.imageUrlInput)

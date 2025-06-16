@@ -39,19 +39,12 @@ class StoryDetailActivity : AppCompatActivity() {
 
         val imageView = findViewById<ImageView>(R.id.storyImage)
 
-        Log.d("StoryDetailActivity", "storiesViewModel: ${storiesViewModel.getStories()}")
+        val photoResId = intent.getIntExtra("photoResId", -1)
 
-        /*if (!photoPath.isNullOrEmpty()) {
-            val imgFile = File(photoPath)
-            if (imgFile.exists()) {
-                imageView.setImageURI(Uri.fromFile(imgFile))
-            } else {
-                imageView.setImageResource(R.drawable.image_rounded_bg)
-            }
-        } else {
-            imageView.setImageResource(R.drawable.image_rounded_bg)
-        } */
-        if (!photoPath.isNullOrEmpty()) {
+
+        if (photoResId != -1) {
+            imageView.setImageResource(photoResId)
+        } else if (!photoPath.isNullOrEmpty()) {
             Glide.with(this)
                 .load(photoPath)
                 .placeholder(R.drawable.image_rounded_bg)
@@ -60,6 +53,7 @@ class StoryDetailActivity : AppCompatActivity() {
         } else {
             imageView.setImageResource(R.drawable.image_rounded_bg)
         }
+
 
         val closeBtn = findViewById<ImageButton>(R.id.closeExploreBtn)
         closeBtn.setOnClickListener {
@@ -70,6 +64,15 @@ class StoryDetailActivity : AppCompatActivity() {
         }
         val saveButton = findViewById<Button>(R.id.saveStoryButton)
         saveButton.setOnClickListener {
+            val storyId = intent.getStringExtra("storyId") ?: ""  // ✅ move this to the top!
+
+
+            if (storyId == "defaultFunStory") {
+                Toast.makeText(this, "You can't save the default story.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+
             val story = Story(
                 storyId = intent.getStringExtra("storyId") ?: "",
                 title = title ?: "",

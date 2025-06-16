@@ -10,6 +10,7 @@ import android.os.Build
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.content.ContextCompat
@@ -80,55 +81,23 @@ class ExploreActivity : AppCompatActivity() {
         //adapter = StoryAdapter(stories, showDeleteButton = false)
         adapter = StoryAdapter(storiesViewModel.getStories()?.toMutableList() ?: stories.toMutableList(), showDeleteButton = false)
         recyclerView.adapter = adapter
-
-        setupFilterButtons()
-    }
-
-    private fun setupFilterButtons() {
-        val btnAll = findViewById<Button>(R.id.btnAllPlaces)
-        val btnBuildings = findViewById<Button>(R.id.btnBuildings)
-        val btnMonuments = findViewById<Button>(R.id.btnMonuments)
-
-        val buttons = listOf(btnAll, btnBuildings, btnMonuments)
-
-        fun setSelected(button: Button) {
-            buttons.forEach { btn ->
-                btn.setBackgroundResource(R.drawable.filter_button_unselected)
-                btn.setTextColor(ContextCompat.getColor(this, android.R.color.black))
-                btn.setTypeface(null, Typeface.NORMAL)
-            }
-
-            button.setBackgroundResource(R.drawable.filter_button_selected)
-            button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
-            button.setTypeface(null, Typeface.BOLD)
+        val featuredCard = findViewById<CardView>(R.id.featuredCard)
+        featuredCard.setOnClickListener {
+            val intent = Intent(this, StoryDetailActivity::class.java)
+            intent.putExtra("storyId", "defaultFunStory")
+            intent.putExtra("title", "The Mysterious Bell of Baker Street")
+            intent.putExtra("description", "Every night at 9:03 PM, a forgotten bell chimes from beneath Baker Street. No one knows who rings it—or why. Locals say it's the ghost of a baker who accidentally created the world’s first garlic donut.")
+            intent.putExtra("dateOfFact", "1897")
+            intent.putExtra("locationId", "baker_st_ghost_bell")
+            intent.putExtra("author", "Eleanor Finch")
+            intent.putExtra("photoResId", R.drawable.bell) // or your placeholder image
+            startActivity(intent)
         }
 
-        btnAll.setOnClickListener { setSelected(btnAll) }
-        btnBuildings.setOnClickListener { setSelected(btnBuildings) }
-        btnMonuments.setOnClickListener { setSelected(btnMonuments) }
-
-        // Select "All Places" by default
-        setSelected(btnAll)
     }
-    private fun updateFilterButtonStyles(selectedButtonId: Int) {
-        val allButtons = listOf(
-            findViewById<Button>(R.id.btnAllPlaces),
-            findViewById<Button>(R.id.btnBuildings),
-            findViewById<Button>(R.id.btnMonuments)
-        )
 
-        allButtons.forEach { button ->
-            if (button.id == selectedButtonId) {
-                // Selected style
-                button.setBackgroundResource(R.drawable.filter_button_selected)
-                button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
-            } else {
-                // Unselected style
-                button.setBackgroundResource(R.drawable.filter_button_unselected)
-                button.setTextColor(ContextCompat.getColor(this, android.R.color.black))
-            }
-        }
-    }
+
+
 }
 
 
