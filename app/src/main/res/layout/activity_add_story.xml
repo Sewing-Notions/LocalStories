@@ -40,8 +40,6 @@
                 android:contentDescription="Close"
                 android:src="@android:drawable/ic_menu_close_clear_cancel" />
         </RelativeLayout>
-
-
         <EditText
             android:id="@+id/imageUrlInput"
             android:layout_width="match_parent"

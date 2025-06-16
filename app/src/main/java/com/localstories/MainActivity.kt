@@ -50,7 +50,23 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.localstories.viewmodel.StoriesViewModel
 import com.localstories.viewmodel.StoryRepository
+import com.localstories.viewmodel.UserLocationRepository
 import kotlinx.coroutines.launch
+//import okhttp3.Callback
+import retrofit2.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
+import java.io.InputStream
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -222,11 +238,17 @@ class MainActivity : AppCompatActivity() {
             val title = data?.getStringExtra("storyTitle") ?: "Default Title"
             val snippet = data?.getStringExtra("storySnippet") ?: "Default Snippet"
             val date = data?.getStringExtra("storyDate") ?: "Default Date"
+            val imageUri = data?.getParcelableExtra<android.net.Uri>("imageUrl") ?: android.net.Uri.EMPTY
+            val imageUrl = data?.getStringExtra("imageUrl") ?: ""
 
             //Log.d("MainActivity", "Pinned Location: $pinnedLocation")
             val pinnedLocation = formatPinnedLocation(title, date + "\n" + snippet)
             mapViewModel.addPinnedLocation(pinnedLocation, "35.247.54.23", "3000")
-            mapViewModel.addStory(formatStory(title, snippet, date, pinnedLocation.id), "35.247.54.23", "3000")
+            if (imageUrl.isNotEmpty()) {
+                mapViewModel.addStory(formatStory(title, snippet, date, pinnedLocation.id), "35.247.54.23", "3000")
+            } else {
+                uploadStoryWithImage(title, snippet, date, pinnedLocation.id, imageUri)
+            }
         }
     }
 
@@ -240,6 +262,73 @@ class MainActivity : AppCompatActivity() {
     }
     fun formatStory(storyTitle: String, storyDescription: String, storyDate: String, locationId: String): Story {
         return mapViewModel.generateStory(storyTitle, storyDescription, storyDate, locationId)
+    }
+
+    fun uploadStoryWithImage(
+        title: String,
+        snippet: String,
+        date: String,
+        locationId: String,
+        imageUri: android.net.Uri
+    ) {
+        try {
+            val inputStream: InputStream? = contentResolver.openInputStream(imageUri)
+            if (inputStream == null) {
+                Log.e("Upload", "Failed to get InputStream from URI")
+                Toast.makeText(this, "Error processing image.", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val requestFile = inputStream.readBytes().toRequestBody("image/jpeg".toMediaTypeOrNull())
+            val fileName = imageUri.lastPathSegment ?: "image.jpg"
+            val body = MultipartBody.Part.createFormData("photo", fileName, requestFile)
+            val storyId = (UserLocationRepository.getLocation().value?.latitude.toString() +
+                    UserLocationRepository.getLocation().value?.longitude.toString() + "-" +
+                    SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()).toString())
+
+            val storyIdRequestBody = storyId.toRequestBody("text/plain".toMediaTypeOrNull())
+            val titleRequestBody = title.toRequestBody("text/plain".toMediaTypeOrNull())
+            val snippetRequestBody = snippet.toRequestBody("text/plain".toMediaTypeOrNull())
+            val dateRequestBody = date.toRequestBody("text/plain".toMediaTypeOrNull())
+            val locationIdRequestBody = locationId.toRequestBody("text/plain".toMediaTypeOrNull())
+            val userIdRequestBody = "789".toRequestBody("text/plain".toMediaTypeOrNull()) // Replace with actual user ID
+            val retrofit = Retrofit.Builder()
+                .baseUrl("http://35.247.54.23:3000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            val service = retrofit.create(ApiService::class.java)
+            val call = service.uploadStory(
+                body,
+                storyIdRequestBody,
+                titleRequestBody,
+                snippetRequestBody,
+                dateRequestBody,
+                locationIdRequestBody,
+                userIdRequestBody
+            )
+
+            call.enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    if (response.isSuccessful) {
+                        Log.d("Upload", "Story with image uploaded successfully!")
+                        Toast.makeText(this@MainActivity, "Story uploaded!", Toast.LENGTH_SHORT).show()
+                        Log.d("Upload", "Response: ${response.body()?.string()}")
+                    } else {
+                        Log.e("Upload", "Failed to upload story: ${response.code()} - ${response.errorBody()?.string()}")
+                        Toast.makeText(this@MainActivity, "Upload failed: ${response.message()}", Toast.LENGTH_LONG).show()
+                    }
+                }
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    Log.e("Upload", "Error uploading story", t)
+                    Toast.makeText(this@MainActivity, "Upload error: ${t.message}", Toast.LENGTH_LONG).show()
+                }
+            })
+
+        } catch (e: Exception) {
+            Log.e("Upload", "Exception during image processing or upload", e)
+            Toast.makeText(this, "An error occurred: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun checkLocationPermissionAndFocus() {

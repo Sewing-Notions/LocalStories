@@ -1,6 +1,7 @@
 package com.localstories
 import com.bumptech.glide.Glide
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.ImageButton
@@ -9,10 +10,30 @@ import android.widget.EditText
 import com.google.android.gms.maps.model.LatLng
 import com.localstories.viewmodel.PinnedLocation
 import android.widget.ImageView
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
+object  StorySession {
+    var storyId: String = ""
+    var title: String = ""
+    var description: String = ""
+    var dateOfFact: String = ""
+    var locationId: String = ""
+    var userId: String = ""
+    var imageUrl: String = ""
+    var imageUri: Uri? = null
+}
 
 class AddStoryActivity : AppCompatActivity() {
     private lateinit var imagePlaceholder: ImageView
+    val startCameraActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val imageUri = result.data?.getParcelableExtra<android.net.Uri>("imageUri")
+            imagePlaceholder.setImageURI(imageUri)
+            StorySession.imageUri = imageUri
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_story)
@@ -45,6 +66,15 @@ class AddStoryActivity : AppCompatActivity() {
         val locationNameEditText = findViewById<EditText>(R.id.locationName)
         val locationTimePeriodEditText = findViewById<EditText>(R.id.locationTimePeriod)
         val locationStoryEditText = findViewById<EditText>(R.id.locationStory)
+
+
+        val cameraButton = findViewById<FloatingActionButton>(R.id.cameraBtn)
+        cameraButton.setOnClickListener {
+            // Start CameraActivity().checkPermissionsAndOpenCamera()
+            val intent = Intent(this, CameraActivity::class.java)
+            startCameraActivity.launch(intent)
+        }
+
         val closeButton = findViewById<ImageButton>(R.id.closeButton)
         val submitButton = findViewById<Button>(R.id.submitButton)
 
@@ -72,19 +102,22 @@ class AddStoryActivity : AppCompatActivity() {
             val title = locationNameEditText.text.toString()
             val snippet = locationStoryEditText.text.toString()
             val date = locationTimePeriodEditText.text.toString()
+            // upload image to server and get image URL
 
-            if (snippet.isNotEmpty() || date.isNotEmpty()) {
+            if (title.isNotEmpty() &&
+                snippet.isNotEmpty() &&
+                date.isNotEmpty()) {
                 val resultIntent = Intent()
                 resultIntent.putExtra("storyTitle", title)
                 resultIntent.putExtra("storySnippet", snippet)
                 resultIntent.putExtra("storyDate", date)
-                resultIntent.putExtra("imageUrl", imageUrlInput.text.toString().trim()) // Pass image URL
+                if (StorySession.imageUri != null) resultIntent.putExtra("imageUri", StorySession.imageUri)
+                else if (imageUrlInput.text.toString().trim().isNotEmpty()) resultIntent.putExtra("imageUrl", imageUrlInput.text.toString().trim())
                 setResult(RESULT_OK, resultIntent)
                 finish()
             }
         }
     }
-
 
     fun formatLocation(locationName: String, locationInfo: String? = null): PinnedLocation {
         return PinnedLocation("70D0", LatLng(0.0, 0.0), locationName, locationInfo?: null)
