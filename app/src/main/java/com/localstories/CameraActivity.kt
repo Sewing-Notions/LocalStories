@@ -86,7 +86,7 @@ class CameraActivity : AppCompatActivity() {
         try {
             imageFile = File.createTempFile("IMG_", ".jpg", cacheDir).apply {
                 createNewFile()
-                deleteOnExit()
+                //deleteOnExit()
             }
         } catch (ex: Exception) {
             Log.e("CameraActivity", "Error creating temp file for camera", ex)

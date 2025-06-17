@@ -39,7 +39,7 @@ class StoryAdapter(
 
         // Load image using Glide
         Glide.with(holder.itemView.context)
-            .load(story.photoPath)
+            .load("http://35.247.54.23:3000/" + story.photoPath)
             .placeholder(R.drawable.bg_rounded_edittext)
             .error(android.R.drawable.ic_dialog_alert)
             .into(holder.image)
@@ -58,7 +58,7 @@ class StoryAdapter(
                 putExtra("title", story.title)
                 putExtra("description", story.description)
                 putExtra("dateOfFact", story.dateOfFact.toString())
-                putExtra("photoPath", story.photoPath)
+                putExtra("photoPath", "http://35.247.54.23:3000/" + story.photoPath)
                 putExtra("locationId", story.locationId)
                 putExtra("userId", story.userId)
             }

@@ -28,7 +28,7 @@ class AddStoryActivity : AppCompatActivity() {
     private lateinit var imagePlaceholder: ImageView
     val startCameraActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            val imageUri = result.data?.getParcelableExtra<android.net.Uri>("imageUri")
+            val imageUri = result.data?.getParcelableExtra<Uri>("imageUri")
             imagePlaceholder.setImageURI(imageUri)
             StorySession.imageUri = imageUri
         }

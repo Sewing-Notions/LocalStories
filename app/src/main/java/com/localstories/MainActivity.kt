@@ -238,7 +238,8 @@ class MainActivity : AppCompatActivity() {
             val title = data?.getStringExtra("storyTitle") ?: "Default Title"
             val snippet = data?.getStringExtra("storySnippet") ?: "Default Snippet"
             val date = data?.getStringExtra("storyDate") ?: "Default Date"
-            val imageUri = data?.getParcelableExtra<android.net.Uri>("imageUrl") ?: android.net.Uri.EMPTY
+            //val imageUri = data?.getParcelableExtra<android.net.Uri>("imageUrl") ?: android.net.Uri.EMPTY
+            val imageUri = StorySession.imageUri
             val imageUrl = data?.getStringExtra("imageUrl") ?: ""
 
             //Log.d("MainActivity", "Pinned Location: $pinnedLocation")
@@ -247,7 +248,9 @@ class MainActivity : AppCompatActivity() {
             if (imageUrl.isNotEmpty()) {
                 mapViewModel.addStory(formatStory(title, snippet, date, pinnedLocation.id), "35.247.54.23", "3000")
             } else {
-                uploadStoryWithImage(title, snippet, date, pinnedLocation.id, imageUri)
+                if (imageUri != null) {
+                    uploadStoryWithImage(title, snippet, date, pinnedLocation.id, imageUri)
+                }
             }
         }
     }
