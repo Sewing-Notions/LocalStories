@@ -7,7 +7,7 @@ const Location = require('./models/Location');
 const Story = require('./models/Story');
 const Report = require('./models/Report');
 const CompassUsage = require('./models/CompassUsage');
-
+const path = require('path');
 const app = express();
 const port = 3000;
 
@@ -28,6 +28,10 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
     res.send('Node.js SERVER is running and reachable!');
 });
+
+// Serve static files from the "uploads" directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.get('/add_user', async (req, res) => {
     const { userId, username, email } = req.query;
     if (!userId || !username || !email) {
@@ -67,8 +71,8 @@ app.get('/add_report', async (req, res) => {
         res.status(500).json({ error: 'Failed to add report', details: err.message });
     }
 });
+
 const multer = require('multer');
-const path = require('path');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -76,7 +80,6 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname); // This keeps the original filename
-    //cb(null, Date.now() + '-' + file.originalname);   // timestamp?  
   }
 });
 
@@ -94,6 +97,7 @@ app.post('/add_story', upload.single('photo'), async (req, res) => {
     await Story.create({ storyId, title, description, dateOfFact, photoPath, locationId, userId });
     res.status(200).json({ message: 'Story added successfully!' });
 });
+
 app.get('/add_location', async (req, res) => {
     const { locationId, name, latitude, longitude } = req.query;
     if (!locationId || !name || latitude === undefined || longitude === undefined) {
@@ -107,7 +111,6 @@ app.get('/add_location', async (req, res) => {
         res.status(500).json({ error: 'Failed to add location', details: err.message });
     }
 });
-
 app.post('/add_compass_usage', async (req, res) => {
     const { locationName, userId, timestamp, heading } = req.body;
     if (!locationName || !userId || !timestamp || heading === undefined) {
@@ -147,20 +150,6 @@ app.post('/add_report', async (req, res) => {
         res.status(200).json({ message: 'Report added successfully!' });
     } catch (err) {
         res.status(500).json({ error: 'Failed to add report', details: err.message });
-    }
-});
-
-app.post('/add_story', async (req, res) => {
-    const { storyId, title, description, dateOfFact, photoPath, locationId, userId } = req.body;
-    if (!storyId || !title || !description || !dateOfFact || !photoPath || !locationId || !userId) {
-        return res.status(400).json({ error: 'All fields are required' });
-    }
-
-    try {
-        await Story.create({ storyId, title, description, dateOfFact, photoPath, locationId, userId });
-        res.status(200).json({ message: 'Story added successfully!' });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to add story', details: err.message });
     }
 });
 
@@ -204,21 +193,6 @@ app.get('/stories', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch stories', details: err.message });
     }
-});
-
-app.get('/reports/:userId', async (req, res) => {
-  const { userId } = req.params;
-
-  const reports = await Report.find({ userId });
-
-  if (reports.length === 0) {
-    return res.status(404).json({ message: 'No reports found for this user.' });
-  }
-
-  res.status(200).json({
-    userId,
-    reports
-  });
 });
 
 app.get('/locations', async (req, res) => {
@@ -290,6 +264,21 @@ app.get('/nearest_location', async (req, res) => {
     }
 });
 
+app.get('/reports/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  const reports = await Report.find({ userId });
+
+  if (reports.length === 0) {
+    return res.status(404).json({ message: 'No reports found for this user.' });
+  }
+
+  res.status(200).json({
+    userId,
+    reports
+  });
+});
+
 app.get('/user/:userId', async (req, res) => {
     const { userId } = req.params;
     try {
@@ -341,7 +330,7 @@ app.delete('/delete_all_data', async (req, res) => {
 app.get('/export_db', async (req, res) => {
   try {
     const users = await User.find();
-    const locations = await Location.find();
+   const locations = await Location.find();
     const stories = await Story.find();
     const reports = await Report.find();
     const compassUsage = await CompassUsage.find();
@@ -357,7 +346,6 @@ app.get('/export_db', async (req, res) => {
     res.status(500).json({ error: 'Failed to export database', details: err.message });
   }
 });
-
 
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on http://35.247.54.23:${port}`);

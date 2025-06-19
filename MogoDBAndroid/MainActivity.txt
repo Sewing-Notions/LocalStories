@@ -1,0 +1,312 @@
+
+package com.sensorreadings
+
+import android.content.Intent
+import android.content.IntentFilter
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.os.Bundle
+import android.util.Log
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Spinner
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
+
+class MainActivity : AppCompatActivity(), SensorEventListener {
+
+    private lateinit var sensorManager: SensorManager
+    private lateinit var batteryStatusReceiver: BatteryStatusReceiver
+
+    private lateinit var outputText: TextView
+    private lateinit var exportButton: Button
+    private lateinit var pushButton: Button
+    private lateinit var noteField: EditText
+    private lateinit var ipField: EditText
+    private lateinit var portField: EditText
+    private lateinit var locationSpinner: Spinner
+    private lateinit var viewJsonButton: Button
+
+    private val sensorMap = mutableMapOf<String, Sensor?>()
+    private val sensorReadings = mutableListOf<SensorReading>()
+    private val latestReadings = mutableMapOf<String, String>()
+
+    private var selectedLocation = "Phone (Local Save Only)"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        outputText = findViewById(R.id.sensor_output)
+        exportButton = findViewById(R.id.export_button)
+        pushButton = findViewById(R.id.push_button)
+        noteField = findViewById(R.id.note_field)
+        ipField = findViewById(R.id.ip_field)
+        portField = findViewById(R.id.port_field)
+        locationSpinner = findViewById(R.id.location_spinner)
+        viewJsonButton = findViewById(R.id.view_json_button)
+
+        setupSpinner()
+        setupButtons()
+        setupSensors()
+
+        batteryStatusReceiver = BatteryStatusReceiver()
+        registerReceiver(batteryStatusReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+
+        val openCameraButton = findViewById<Button>(R.id.open_camera_button)
+        openCameraButton.setOnClickListener {
+            val intent = Intent(this, CameraActivity::class.java)
+            // Optional: pass metadata
+            intent.putExtra("storyId", StorySession.storyId)
+            intent.putExtra("userId", StorySession.userId)
+            startActivity(intent)
+        }
+    }
+
+    private fun uploadTestImageFromRaw() {
+        val inputStream = resources.openRawResource(R.raw.test_image)
+        val file = File(cacheDir, "test_image.jpg")
+        file.outputStream().use { output ->
+            inputStream.copyTo(output)
+        }
+
+        val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+        val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://35.247.54.23:3000/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(ApiService::class.java)
+
+        val call = service.uploadStory(
+            body,
+            "storys999".toRequestBody("text/plain".toMediaTypeOrNull()),
+            "Test Story".toRequestBody("text/plain".toMediaTypeOrNull()),
+            "This is a test2 upload".toRequestBody("text/plain".toMediaTypeOrNull()),
+            "2025-06-13".toRequestBody("text/plain".toMediaTypeOrNull()),
+            "loc001".toRequestBody("text/plain".toMediaTypeOrNull()),
+            "user001".toRequestBody("text/plain".toMediaTypeOrNull())
+        )
+
+        call.enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("Upload", "Success")
+                } else {
+                    Log.e("Upload", "Failed: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("Upload", "Error: ${t.message}")
+            }
+        })
+    }
+}
+
+override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+    Log.e("Upload", "Error: ${t.message}")
+}
+
+private fun setupSensors() {
+    sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    val sensorTypes = mapOf(
+        "TYPE_AMBIENT_TEMPERATURE" to Sensor.TYPE_AMBIENT_TEMPERATURE,
+        "TYPE_PROXIMITY" to Sensor.TYPE_PROXIMITY,
+        "TYPE_LIGHT" to Sensor.TYPE_LIGHT,
+        "TYPE_PRESSURE" to Sensor.TYPE_PRESSURE,
+        "TYPE_RELATIVE_HUMIDITY" to Sensor.TYPE_RELATIVE_HUMIDITY,
+        "TYPE_GAME_ROTATION_VECTOR" to Sensor.TYPE_GAME_ROTATION_VECTOR,
+        "TYPE_GEOMAGNETIC_ROTATION_VECTOR" to Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR,
+        "TYPE_ROTATION_VECTOR" to Sensor.TYPE_ROTATION_VECTOR,
+        "TYPE_ORIENTATION" to Sensor.TYPE_ORIENTATION,
+        "TYPE_GRAVITY" to Sensor.TYPE_GRAVITY,
+        "TYPE_ACCELEROMETER" to Sensor.TYPE_ACCELEROMETER,
+        "TYPE_GYROSCOPE" to Sensor.TYPE_GYROSCOPE,
+        "TYPE_MAGNETIC_FIELD" to Sensor.TYPE_MAGNETIC_FIELD,
+        "TYPE_STEP_COUNTER" to Sensor.TYPE_STEP_COUNTER
+    )
+    for ((name, type) in sensorTypes) {
+        val sensor = sensorManager.getDefaultSensor(type)
+        if (sensor != null) {
+            sensorMap[sensor.name] = sensor
+        }
+    }
+    outputText.append("Available Sensors:\n")
+    for ((name, sensor) in sensorMap) {
+        if (sensor != null) {
+            outputText.append("- $name\n")
+        }
+    }
+}
+
+private fun setupSpinner() {
+    val options = arrayOf("Phone (Local Save Only)", "LAN (Local Server)", "WAN (Cloud Server)")
+    val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, options)
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+    locationSpinner.adapter = adapter
+    locationSpinner.setSelection(0)
+    locationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+            selectedLocation = parent?.getItemAtPosition(position).toString()
+        }
+        override fun onNothingSelected(parent: AdapterView<*>?) {}
+    }
+}
+
+private fun setupButtons() {
+    exportButton.setOnClickListener {
+        exportReadingsToJSON()
+        Toast.makeText(this, "Readings exported locally.", Toast.LENGTH_SHORT).show()
+    }
+
+    pushButton.setOnClickListener {
+        val ip = ipField.text.toString()
+        val port = portField.text.toString()
+        if (selectedLocation == "Phone (Local Save Only)") {
+            Toast.makeText(this, "Local Save Only — No Push.", Toast.LENGTH_SHORT).show()
+        } else if (isValidSocket(ip, port)) {
+            exportReadingsToJSON()
+            val file = File(filesDir, "sensor_readings.json")
+            val json = file.readText()
+            Thread {
+                try {
+                    val socket = Socket(ip, port.toInt())
+                    val writer = OutputStreamWriter(socket.getOutputStream())
+                    writer.write(json)
+                    writer.flush()
+                    writer.close()
+                    socket.close()
+                    runOnUiThread {
+                        Toast.makeText(this, "JSON pushed to $ip:$port", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e("PushError", "General Exception: ${e::class.java.simpleName}", e)
+                    runOnUiThread {
+                        Toast.makeText(this, "Push failed: ${e::class.java.simpleName}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }.start()
+        } else {
+            Toast.makeText(this, "Invalid IP or Port. Correct before sending.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    viewJsonButton.setOnClickListener {
+        val intent = Intent(this, JsonViewerActivity::class.java)
+        startActivity(intent)
+    }
+}
+
+override fun onResume() {
+    super.onResume()
+    for (sensor in sensorMap.values) {
+        sensor?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL) }
+    }
+}
+
+override fun onPause() {
+    super.onPause()
+    sensorManager.unregisterListener(this)
+
+    try {
+        unregisterReceiver(batteryStatusReceiver)
+    } catch (e: IllegalArgumentException) {
+        Log.w("BatteryReceiver", "Receiver not registered: ${e.message}")
+    }
+}
+
+override fun onSensorChanged(event: SensorEvent?) {
+    event?.let {
+        val reading: String? = when (it.sensor.type) {
+            Sensor.TYPE_LIGHT -> "Light: ${it.values[0]} lux"
+            Sensor.TYPE_AMBIENT_TEMPERATURE -> "Ambient Temp: ${it.values[0]} °C"
+            Sensor.TYPE_PROXIMITY -> "Proximity: ${it.values[0]} cm"
+            Sensor.TYPE_PRESSURE -> "Pressure: ${it.values[0]} hPa"
+            Sensor.TYPE_RELATIVE_HUMIDITY -> "Humidity: ${it.values[0]} %"
+            Sensor.TYPE_ACCELEROMETER -> "Accel: x=${it.values[0]}, y=${it.values[1]}, z=${it.values[2]}"
+            Sensor.TYPE_GYROSCOPE -> "Gyro: x=${it.values[0]}, y=${it.values[1]}, z=${it.values[2]}"
+            Sensor.TYPE_MAGNETIC_FIELD -> "Mag Field: x=${it.values[0]}, y=${it.values[1]}, z=${it.values[2]}"
+            Sensor.TYPE_ROTATION_VECTOR, Sensor.TYPE_GAME_ROTATION_VECTOR, Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR -> "Rotation: ${it.values.joinToString()}"
+            Sensor.TYPE_ORIENTATION -> "Orientation: azimuth=${it.values[0]}, pitch=${it.values[1]}, roll=${it.values[2]}"
+            Sensor.TYPE_GRAVITY -> "Gravity: x=${it.values[0]}, y=${it.values[1]}, z=${it.values[2]}"
+            Sensor.TYPE_STEP_COUNTER -> "Steps: ${it.values[0]}"
+            else -> null
+        }
+        reading?.let { result ->
+            val key = it.sensor.name
+            latestReadings[key] = result
+            val display = StringBuilder()
+            latestReadings.forEach { (_, value) -> display.append("$value\n") }
+            outputText.text = display.toString()
+        }
+    }
+}
+
+override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+private fun exportReadingsToJSON() {
+    if (latestReadings.isNotEmpty()) {
+        sensorReadings.clear()
+        val note = noteField.text.toString()
+        val time = getCurrentTimestamp()
+        for ((sensorName, sensorValue) in latestReadings) {
+            sensorReadings.add(
+                SensorReading(
+                    sensorName = sensorName,
+                    sensorValue = sensorValue,
+                    timestamp = time,
+                    userNote = note,
+                    targetLocation = selectedLocation
+                )
+            )
+        }
+        val gson = Gson()
+        val jsonString = gson.toJson(sensorReadings)
+        val file = File(filesDir, "sensor_readings.json")
+        file.writeText(jsonString)
+    }
+}
+
+private fun getCurrentTimestamp(): String {
+    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    return sdf.format(Date())
+}
+
+private fun isValidIPv4(ip: String): Boolean {
+    val parts = ip.trim().split(".")
+    if (parts.size != 4) return false
+    return parts.all { it.toIntOrNull()?.let { num -> num in 0..255 } ?: false }
+}
+
+private fun isValidSocket(ip: String, port: String): Boolean {
+    val portNum = port.toIntOrNull()
+    return isValidIPv4(ip) && portNum != null && portNum in 1..65535
+}
+
+inner class BatteryStatusReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        intent?.let {
+            val level = it.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+            val scale = it.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+            val isCharging = it.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) != 0
+            val batteryPct = (level * 100 / scale.toFloat()).toInt()
+            outputText.append("\nBattery: $batteryPct% (${if (isCharging) "Charging" else "Not Charging"})")
+        }
+    }
+}
+}

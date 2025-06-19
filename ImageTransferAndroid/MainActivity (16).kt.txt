@@ -1,0 +1,141 @@
+
+package com.example.myapplication
+
+import android.content.Context
+import android.net.Uri
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
+import com.example.myapplication.ui.theme.MyApplicationTheme
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
+import java.io.IOException
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MyApplicationTheme {
+                @OptIn(ExperimentalMaterial3Api::class)
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    AddStoryScreen(modifier = Modifier.padding(innerPadding))
+                }
+            }
+        }
+    }
+}
+
+fun uploadStory(context: Context, imageUri: Uri) {
+    val contentResolver = context.contentResolver
+    val file = File(imageUri.path ?: return)
+
+    val client = OkHttpClient()
+    val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
+        .addFormDataPart("photo", file.name, file.asRequestBody("image/jpeg".toMediaType()))
+        .addFormDataPart("storyId", "story101")
+        .addFormDataPart("title", "Test Story")
+        .addFormDataPart("description", "This is a test upload")
+        .addFormDataPart("dateOfFact", "2025-06-13")
+        .addFormDataPart("locationId", "loc001")
+        .addFormDataPart("userId", "user001")
+        .build()
+
+    val request = Request.Builder()
+        .url("http://35.247.54.23:3000/add_story")
+        .post(requestBody)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            Log.e("Upload", "Failed: ${e.message}")
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(context, "Upload failed: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            val responseText = response.body?.string()
+            Log.d("Upload", "Success: $responseText")
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(context, "Upload successful!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    })
+}
+
+@Composable
+fun AddStoryScreen(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val imageUri = remember { mutableStateOf<Uri?>(null) }
+
+    val photoFile = remember {
+        File(context.cacheDir, "captured_photo.jpg").apply { createNewFile() }
+    }
+
+    val photoUri = FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.provider",
+        photoFile
+    )
+
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            imageUri.value = photoUri
+            // You can upload this image now
+        }
+    }
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        imageUri.value = uri
+    }
+
+    Column(modifier = modifier.padding(16.dp)) {
+        Button(onClick = { pickImageLauncher.launch("image/*") }) {
+            Text("Pick Image")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(onClick = { takePictureLauncher.launch(photoUri) }) {
+            Text("Capture Photo")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(onClick = {
+            imageUri.value?.let {
+                uploadStory(context, it)
+            }
+        }) {
+            Text("Upload Story")
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    MyApplicationTheme {
+        Text("Hello Android")
+    }
+}

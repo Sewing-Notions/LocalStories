@@ -1,0 +1,141 @@
+{
+  "User": [
+    {
+      "_id": "684a09dfddf455e49f480fad",
+      "userId": "user123",
+      "username": "ghosthunter1",
+      "email": "ghosthunter1@example.com",
+      "__v": 0
+    },
+    {
+      "_id": "684a09dfddf455e49f480fae",
+      "userId": "user456",
+      "username": "ghosthunter2",
+      "email": "ghosthunter2@example.com",
+      "__v": 0
+    },
+    {
+      "_id": "684a09dfddf455e49f480faf",
+      "userId": "user789",
+      "username": "ghosthunter3",
+      "email": "ghosthunter3@example.com",
+      "__v": 0
+    }
+  ],
+  "Location": [
+    {
+      "_id": "684a09dfddf455e49f480fb4",
+      "locationId": "location001",
+      "name": "Pike Place Market",
+      "latitude": 47.6097,
+      "longitude": -122.3425,
+      "__v": 0
+    },
+    {
+      "_id": "684a09dfddf455e49f480fb5",
+      "locationId": "location002",
+      "name": "Seattle Underground",
+      "latitude": 47.601,
+      "longitude": -122.3304,
+      "__v": 0
+    },
+    {
+      "_id": "684a09dfddf455e49f480fb6",
+      "locationId": "location003",
+      "name": "Smith Tower",
+      "latitude": 47.6016,
+      "longitude": -122.3316,
+      "__v": 0
+    }
+  ],
+  "Story": [
+    {
+      "_id": "684a09dfddf455e49f480fb9",
+      "storyId": "story001",
+      "title": "The Ghost of Pike Place Market",
+      "description": "A ghostly figure has been seen wandering the market at night.",
+      "dateOfFact": "2023-01-01T00:00:00.000Z",
+      "photoPath": "/images/pike_place_ghost.jpg",
+      "locationId": "location001",
+      "userId": "user123",
+      "images": [
+        "/images/pike_place_ghost.jpg"
+      ],
+      "__v": 0
+    },
+    {
+      "_id": "684a09dfddf455e49f480fba",
+      "storyId": "story002",
+      "title": "Haunted Seattle Underground",
+      "description": "Strange noises and apparitions have been reported in the underground tunnels.",
+      "dateOfFact": "2023-02-01T00:00:00.000Z",
+      "photoPath": "/images/seattle_underground_ghost.jpg",
+      "locationId": "location002",
+      "userId": "user456",
+      "images": [
+        "/images/seattle_underground_ghost.jpg"
+      ],
+      "__v": 0
+    },
+    {
+      "_id": "684a09dfddf455e49f480fbb",
+      "storyId": "story003",
+      "title": "The Phantom of Smith Tower",
+      "description": "A ghostly figure has been seen on the observation deck.",
+      "dateOfFact": "2023-03-01T00:00:00.000Z",
+      "photoPath": "/images/smith_tower_ghost.jpg",
+      "locationId": "location003",
+      "userId": "user789",
+      "images": [
+        "/images/smith_tower_ghost.jpg"
+      ],
+      "__v": 0
+    }
+  ],
+  "Report": [
+    {
+      "_id": "684a09dfddf455e49f480fbd",
+      "reportId": "report001",
+      "userId": "user123",
+      "reason": "Suspicious activity",
+      "reportDate": "2025-05-29T11:28:42.587Z",
+      "storyId": "story001",
+      "__v": 0
+    },
+    {
+      "_id": "684a09dfddf455e49f480fbe",
+      "reportId": "report002",
+      "userId": "user456",
+      "reason": "Unverified information",
+      "reportDate": "2025-05-29T11:28:42.587Z",
+      "storyId": "story002",
+      "__v": 0
+    }
+  ],
+  "CompassUsage": [
+    {
+      "_id": "684a09dfddf455e49f480fc0",
+      "locationName": "Pike Place Market",
+      "userId": "user123",
+      "timestamp": "2025-05-29T11:28:42.587Z",
+      "heading": 45,
+      "__v": 0
+    },
+    {
+      "_id": "684a09dfddf455e49f480fc1",
+      "locationName": "Seattle Underground",
+      "userId": "user456",
+      "timestamp": "2025-05-29T11:28:42.587Z",
+      "heading": 90,
+      "__v": 0
+    },
+    {
+      "_id": "684a09dfddf455e49f480fc2",
+      "locationName": "Smith Tower",
+      "userId": "user789",
+      "timestamp": "2025-05-29T11:28:42.587Z",
+      "heading": 135,
+      "__v": 0
+    }
+  ]
+}
