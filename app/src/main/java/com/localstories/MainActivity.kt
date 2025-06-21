@@ -328,6 +328,8 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
+            
+
         } catch (e: Exception) {
             Log.e("Upload", "Exception during image processing or upload", e)
             Toast.makeText(this, "An error occurred: ${e.message}", Toast.LENGTH_LONG).show()
