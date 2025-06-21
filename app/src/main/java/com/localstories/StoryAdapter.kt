@@ -58,7 +58,7 @@ class StoryAdapter(
                 putExtra("title", story.title)
                 putExtra("description", story.description)
                 putExtra("dateOfFact", story.dateOfFact.toString())
-                putExtra("photoPath", "http://35.247.54.23:3000/" + story.photoPath)
+                putExtra("photoPath", story.photoPath)
                 putExtra("locationId", story.locationId)
                 putExtra("userId", story.userId)
             }

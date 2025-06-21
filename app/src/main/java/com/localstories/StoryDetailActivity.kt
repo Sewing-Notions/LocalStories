@@ -46,7 +46,7 @@ class StoryDetailActivity : AppCompatActivity() {
             imageView.setImageResource(photoResId)
         } else if (!photoPath.isNullOrEmpty()) {
             Glide.with(this)
-                .load(photoPath)
+                .load("http://35.247.54.23:3000/" + photoPath)
                 .placeholder(R.drawable.image_rounded_bg)
                 .error(R.drawable.image_rounded_bg)
                 .into(imageView)
