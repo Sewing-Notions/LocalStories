@@ -14,6 +14,7 @@ import java.io.File
 import android.widget.ImageButton
 import androidx.activity.viewModels
 import com.bumptech.glide.Glide
+import com.localstories.utils.ManifestUtils
 import com.localstories.viewmodel.MapViewModel
 import com.localstories.viewmodel.StoriesViewModel
 import kotlin.getValue
@@ -46,7 +47,7 @@ class StoryDetailActivity : AppCompatActivity() {
             imageView.setImageResource(photoResId)
         } else if (!photoPath.isNullOrEmpty()) {
             Glide.with(this)
-                .load("http://35.247.54.23:3000/" + photoPath)
+                .load(((ManifestUtils.getDbUrlFromManifest(this) + "/") ?: "http://xlynseyes.ddns.net:3000/") + photoPath)
                 .placeholder(R.drawable.image_rounded_bg)
                 .error(R.drawable.image_rounded_bg)
                 .into(imageView)
@@ -93,7 +94,7 @@ class StoryDetailActivity : AppCompatActivity() {
         }
         val reportButton = findViewById<Button>(R.id.reportButton)
         reportButton.setOnClickListener {
-            mapViewModel.addReport(intent.getStringExtra("storyId") ?: "")
+            mapViewModel.addReport(intent.getStringExtra("storyId") ?: "", ManifestUtils.getDbUrlFromManifest(this) ?: "http://xlynseyes.ddns.net:3000/")
             Toast.makeText(this, "Thank you. We’ll review this story.", Toast.LENGTH_SHORT).show()
         }
     }

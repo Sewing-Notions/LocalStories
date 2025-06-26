@@ -1,11 +1,13 @@
 package com.localstories.viewmodel
 
+import android.content.Context
 import android.location.Location
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,6 +17,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.kotlin.localDate
 import com.localstories.Story
+import com.localstories.utils.ManifestUtils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -101,10 +104,10 @@ class MapViewModel(): ViewModel() {
         }
     }
 
-    fun updateUserLocationInActivity(newLocation: LatLng) {
+    fun updateUserLocationInActivity(newLocation: LatLng, context: Context) {
         UserLocationRepository.setLocation(newLocation)
         purgeFarLocations(newLocation)
-        loadNearestLocation(newLocation, "35.247.54.23", "3000")
+        loadNearestLocation(newLocation, ManifestUtils.getDbUrlFromManifest(context) ?: "http://xlynseyes.ddns.net:3000/")
     }
     var currentCameraPostionState by mutableStateOf<CameraPosition?>(null)
         private set
@@ -113,8 +116,9 @@ class MapViewModel(): ViewModel() {
     var currentCameraPositionFromMap by mutableStateOf<CameraPosition?>(null)
         private set
 
-    fun loadNearestLocation(userLocation: LatLng, ip: String, port: String) {
-        var url = "http://$ip:$port/nearest_location?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}"
+    fun loadNearestLocation(userLocation: LatLng, dbUrl: String) {
+        var url = "$dbUrl/nearest_location?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}"
+        Log.d("MapViewModel", "loadNearestLocation: $url")
         var request = Request.Builder()
             .url(url)
             .get()
@@ -192,9 +196,9 @@ class MapViewModel(): ViewModel() {
                 }
             }
     })}
-    fun addPinnedLocation(location: PinnedLocation, ip: String, port: String) {
+    fun addPinnedLocation(location: PinnedLocation, dbUrl: String) {
         // ?latitude=${location.position.latitude}&longitude=${location.position.longitude}&name=${location.title}&locationId=70d0
-        var url = "http://$ip:$port/add_location"
+        var url = "$dbUrl/add_location"
         var client = OkHttpClient()
 
         var json = JSONObject()
@@ -223,8 +227,8 @@ class MapViewModel(): ViewModel() {
             }
         })
     }
-    fun addStory(story: Story, ip: String, port: String) {
-        var url = "http://$ip:$port/add_story"
+    fun addStory(story: Story, dbUrl: String) {
+        var url = "$dbUrl/add_story"
         var client = OkHttpClient()
 
         var json = JSONObject()
@@ -257,8 +261,8 @@ class MapViewModel(): ViewModel() {
             }
         })
     }
-    fun addReport(storyId: String) {
-        var url = "http://35.247.54.23:3000/add_report"
+    fun addReport(storyId: String, dbUrl: String) {
+        var url = "$dbUrl/add_report"
         var client = OkHttpClient()
 
         var json = JSONObject()

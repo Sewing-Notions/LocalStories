@@ -244,9 +244,9 @@ class MainActivity : AppCompatActivity() {
 
             //Log.d("MainActivity", "Pinned Location: $pinnedLocation")
             val pinnedLocation = formatPinnedLocation(title, date + "\n" + snippet)
-            mapViewModel.addPinnedLocation(pinnedLocation, "35.247.54.23", "3000")
+            mapViewModel.addPinnedLocation(pinnedLocation, ManifestUtils.getDbUrlFromManifest(this) ?: "http://xlynseyes.ddns.net:3000/")
             if (imageUrl.isNotEmpty()) {
-                mapViewModel.addStory(formatStory(title, snippet, date, pinnedLocation.id), "35.247.54.23", "3000")
+                mapViewModel.addStory(formatStory(title, snippet, date, pinnedLocation.id), ManifestUtils.getDbUrlFromManifest(this) ?: "http://xlynseyes.ddns.net:3000/")
             } else {
                 if (imageUri != null) {
                     uploadStoryWithImage(title, snippet, date, pinnedLocation.id, imageUri)
@@ -296,7 +296,7 @@ class MainActivity : AppCompatActivity() {
             val locationIdRequestBody = locationId.toRequestBody("text/plain".toMediaTypeOrNull())
             val userIdRequestBody = "789".toRequestBody("text/plain".toMediaTypeOrNull()) // Replace with actual user ID
             val retrofit = Retrofit.Builder()
-                .baseUrl("http://35.247.54.23:3000/")
+                .baseUrl(ManifestUtils.getDbUrlFromManifest(this) ?: "http://xlynseyes.ddns.net:3000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
 
@@ -327,9 +327,6 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this@MainActivity, "Upload error: ${t.message}", Toast.LENGTH_LONG).show()
                 }
             })
-
-            
-
         } catch (e: Exception) {
             Log.e("Upload", "Exception during image processing or upload", e)
             Toast.makeText(this, "An error occurred: ${e.message}", Toast.LENGTH_LONG).show()

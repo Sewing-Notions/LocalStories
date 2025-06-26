@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.localstories.utils.ManifestUtils
 
 class StoryAdapter(
     private var stories: MutableList<Story>,
@@ -39,7 +40,10 @@ class StoryAdapter(
 
         // Load image using Glide
         Glide.with(holder.itemView.context)
-            .load("http://35.247.54.23:3000/" + story.photoPath)
+            .load(
+                (ManifestUtils.getDbUrlFromManifest(holder.itemView.context) + "/${story.photoPath}")
+                    ?: ("http://xlynseyes.ddns.net:3000/" + story.photoPath)
+            )
             .placeholder(R.drawable.bg_rounded_edittext)
             .error(android.R.drawable.ic_dialog_alert)
             .into(holder.image)

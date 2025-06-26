@@ -69,7 +69,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
                 location?.let {
                     Log.d("MapScreen", "Fetched initial location: ${it.latitude}, ${it.longitude}")
                     val currentLatLng = LatLng(it.latitude, it.longitude)
-                    mapViewModel.updateUserLocationInActivity(currentLatLng)
+                    mapViewModel.updateUserLocationInActivity(currentLatLng, context)
                     coroutineScope.launch {
                         cameraPositionState.animate(
                             update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f),
@@ -91,7 +91,7 @@ fun MapScreen(mapViewModel: MapViewModel) {
                     location?.let {
                         Log.d("MapScreen", "Fetched location: ${it.latitude}, ${it.longitude}")
                         val currentLatLng = LatLng(it.latitude, it.longitude)
-                        mapViewModel.updateUserLocationInActivity(currentLatLng)
+                        mapViewModel.updateUserLocationInActivity(currentLatLng, context)
                     }
                 }.addOnFailureListener { e ->
                     Log.e("MapScreen", "Error getting location", e)
